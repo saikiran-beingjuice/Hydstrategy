@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Being Juice — Hyderabad Nano-Market Decision Engine</title>
+  <title>Being Juice — Hyderabad Catchment & Competitor Intelligence</title>
 
-  <!-- Leaflet CSS & Awesome Fonts -->
+  <!-- Leaflet CSS & Font Awesome -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -14,34 +14,34 @@
     body, html { height: 100%; width: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     #map { height: 100vh; width: 100vw; }
 
-    /* Control Overlay */
+    /* Floating Legend & Info HUD */
     .dashboard-panel {
       position: absolute;
       top: 15px;
       left: 60px;
       z-index: 1000;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
       padding: 14px 18px;
       border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+      box-shadow: 0 6px 22px rgba(0,0,0,0.18);
       border-left: 6px solid #2e7d32;
-      max-width: 380px;
+      max-width: 390px;
     }
-    .dashboard-panel h1 { font-size: 17px; color: #1b5e20; margin-bottom: 4px; font-weight: 800; }
-    .dashboard-panel p { font-size: 11.5px; color: #444; line-height: 1.4; }
-    .badge-bar { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-    .badge-pill { font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 12px; color: #fff; }
+    .dashboard-panel h1 { font-size: 16px; color: #1b5e20; margin-bottom: 4px; font-weight: 800; }
+    .dashboard-panel p { font-size: 11px; color: #444; line-height: 1.4; }
+    .badge-bar { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+    .badge-pill { font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 10px; color: #fff; }
 
-    /* Popup Styling */
+    /* Popups */
     .popup-box { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; line-height: 1.45; min-width: 260px; }
-    .popup-header { color: #fff; padding: 8px 12px; border-radius: 4px 4px 0 0; font-size: 13px; font-weight: 700; }
-    .popup-content { padding: 10px 12px; border: 1px solid #ddd; border-top: none; background: #fff; border-radius: 0 0 4px 4px; }
-    .kpi-row { display: flex; justify-content: space-between; margin: 4px 0; border-bottom: 1px dashed #eee; padding-bottom: 2px; }
+    .popup-header { color: #fff; padding: 7px 10px; border-radius: 4px 4px 0 0; font-size: 12.5px; font-weight: 700; }
+    .popup-content { padding: 9px 11px; border: 1px solid #ddd; border-top: none; background: #fff; border-radius: 0 0 4px 4px; }
+    .kpi-row { display: flex; justify-content: space-between; margin: 3px 0; border-bottom: 1px dashed #eee; padding-bottom: 2px; }
     .kpi-row b { color: #333; }
     .kpi-row span { font-weight: 700; color: #1b5e20; }
 
-    /* Marker Icons */
+    /* Marker Pin Styles */
     .pin-icon {
       display: flex;
       align-items: center;
@@ -49,59 +49,88 @@
       border-radius: 50%;
       color: white;
       border: 2px solid white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.35);
     }
   </style>
 </head>
 <body>
 
   <div class="dashboard-panel">
-    <h1>Being Juice — Hyderabad Nano-Market GIS</h1>
-    <p>Calibrated for <b>40–50 cups/day (100% Strike Rate)</b> at ₹130–₹250. 3 km Nano-Markets (NM), Corporate Canteens (>₹12L CTC), Gourmet Grocers, & Sports Hubs.</p>
+    <h1>Being Juice — Hyderabad Intelligence</h1>
+    <p>Calibrated for <b>40–50 cups/day baseline</b> at ₹130–₹250. Includes Customer Sitting/Dwell Heat Map, 3 km Nano-Markets, and full Competitor Beverage ecosystem.</p>
     <div class="badge-bar">
-      <span class="badge-pill" style="background:#2e7d32;">Stores</span>
+      <span class="badge-pill" style="background:#2e7d32;">Target Stores</span>
+      <span class="badge-pill" style="background:#d81b60;">Coffee & Shake Chains</span>
+      <span class="badge-pill" style="background:#e65100;">Canteens (>₹12L CTC)</span>
       <span class="badge-pill" style="background:#6a1b9a;">SIS Gourmet</span>
-      <span class="badge-pill" style="background:#e65100;">Canteens</span>
       <span class="badge-pill" style="background:#0288d1;">Pickleball & Gyms</span>
-      <span class="badge-pill" style="background:#d81b60;">Starbucks / Boba</span>
     </div>
   </div>
 
   <div id="map"></div>
 
-  <!-- Leaflet & HeatMap Bundle -->
+  <!-- Leaflet & Heatmap Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
   <script>
     // 1. Initialize Map
     const map = L.map('map', {
-      center: [17.4330, 78.3950],
+      center: [17.4320, 78.3900],
       zoom: 12,
       zoomControl: true
     });
 
-    // 2. Base Tile Layer (Esri WorldStreetMap - No 403 blocks)
+    // 2. Base Tile Layer (Esri WorldStreetMap)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Esri &mdash; Being Juice Catchment Intelligence',
       maxZoom: 18
     }).addTo(map);
 
-    // -------------------------------------------------------------
-    // ICON BUILDER
-    // -------------------------------------------------------------
     function makeIcon(color, faClass) {
       return L.divIcon({
         className: '',
-        html: `<div class="pin-icon" style="background:${color}; width:30px; height:30px;"><i class="${faClass}" style="font-size:13px;"></i></div>`,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
-        popupAnchor: [0, -15]
+        html: `<div class="pin-icon" style="background:${color}; width:28px; height:28px;"><i class="${faClass}" style="font-size:12px;"></i></div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+        popupAnchor: [0, -14]
       });
     }
 
     // -------------------------------------------------------------
-    // LAYER 1: 3 KM NANO-MARKETS (NM BOUNDARIES)
+    // LAYER A: CUSTOMER SITTING & DWELL HEAT MAP (Tech Parks, Malls, Food Courts)
+    // -------------------------------------------------------------
+    // [lat, lon, intensity weight 0.0 - 1.0]
+    const customerDwellPoints = [
+      // Knowledge City Atriums & Inorbit Mall Food Court
+      [17.4342, 78.3822, 1.0], [17.4350, 78.3830, 0.95], [17.4344, 78.3871, 0.9],
+      // Mindspace Building 12, 20 & Concourse Seating
+      [17.4401, 78.3814, 0.98], [17.4420, 78.3800, 0.92],
+      // DLF Cyber City Street-front seating & Waverock Cafeterias
+      [17.4478, 78.3582, 0.95], [17.4184, 78.3486, 0.97],
+      // WeWork Rajapushpa Summit & Krishe Emerald (Co-working seats)
+      [17.4190, 78.3440, 0.88], [17.4450, 78.3740, 0.86],
+      // Jubilee Hills Rd 36 & 45 Cafe Patios (Roastery, True Black, Concu)
+      [17.4338, 78.4069, 0.92], [17.4290, 78.4110, 0.9], [17.4225, 78.4312, 0.85],
+      // KBR Park morning lawn seating & Durgam Cheruvu deck
+      [17.4245, 78.4230, 0.87], [17.4330, 78.3890, 0.89],
+      // Kokapet Neopolis Food Clusters & One Golf courtside seating
+      [17.4045, 78.3248, 0.84], [17.4130, 78.3420, 0.86],
+      // Sainikpuri 5th Avenue Cafe outdoor terraces (Coffee Cup, Groove)
+      [17.4890, 78.5470, 0.85], [17.4880, 78.5460, 0.8],
+      // Himayatnagar Minerva / Starbucks seating nexus
+      [17.4020, 78.4840, 0.86]
+    ];
+
+    const lg_dwell_heat = L.heatLayer(customerDwellPoints, {
+      radius: 36,
+      blur: 24,
+      maxZoom: 13,
+      gradient: { 0.2: '#002699', 0.4: '#00cc66', 0.7: '#ffff00', 1.0: '#ff0000' }
+    });
+
+    // -------------------------------------------------------------
+    // LAYER B: 3 KM NANO-MARKETS
     // -------------------------------------------------------------
     const nanoMarkets = [
       { name: "NM-01: Knowledge City & Raidurg (3 km)", center: [17.4342, 78.3822], color: "#2e7d32" },
@@ -109,7 +138,7 @@
       { name: "NM-03: Jubilee Hills & KBR Park (3 km)", center: [17.4338, 78.4069], color: "#6a1b9a" },
       { name: "NM-04: Kokapet & Gandipet (3 km)", center: [17.4045, 78.3248], color: "#e65100" },
       { name: "NM-05: Sainikpuri & AS Rao Nagar (3 km)", center: [17.4890, 78.5470], color: "#00838f" },
-      { name: "NM-06: Himayatnagar & Hyderguda (3 km)", center: [17.4020, 78.4840], color: "#c2185b" }
+      { name: "NM-06: Himayatnagar Commercial (3 km)", center: [17.4020, 78.4840], color: "#c2185b" }
     ];
 
     const lg_nano = L.layerGroup();
@@ -120,15 +149,58 @@
         weight: 1.8,
         dashArray: "6, 6",
         fillColor: nm.color,
-        fillOpacity: 0.07
+        fillOpacity: 0.05
       }).bindTooltip(`<b>${nm.name}</b>`, { permanent: false }).addTo(lg_nano);
     });
 
     // -------------------------------------------------------------
-    // LAYER 2: CANDIDATE BEING JUICE STORES (40-50 CUPS GUARANTEE)
+    // LAYER C: EXPANDED COMPETITOR & BEVERAGE ECOSYSTEM
+    // -------------------------------------------------------------
+    const lg_competitors = L.layerGroup();
+    const competitors = [
+      // Specialty Coffee
+      { name: "Third Wave Coffee (Knowledge City)", coords: [17.4340, 78.3830], cat: "Coffee (₹200 - ₹350)" },
+      { name: "Blue Tokai Coffee (Jubilee Rd 36)", coords: [17.4320, 78.4080], cat: "Specialty Coffee" },
+      { name: "Roastery Coffee House (Banjara Rd 14)", coords: [17.4180, 78.4280], cat: "Artisan Coffee & Food" },
+      { name: "Starbucks (Financial Dist One West)", coords: [17.4180, 78.3480], cat: "Global Coffee Leader" },
+      { name: "Starbucks (Jubilee Hills Rd 92)", coords: [17.4345, 78.4075], cat: "Global Coffee Leader" },
+      { name: "True Black Speciality Coffee (Jubilee)", coords: [17.4305, 78.4040], cat: "Gourmet Coffee" },
+      { name: "The Coffee Cup (Sainikpuri)", coords: [17.4895, 78.5475], cat: "Iconic North HYD Cafe" },
+      
+      // Smoothies & Shakes (Direct Segment Benchmarks)
+      { name: "Drunken Monkey (DLF Gachibowli)", coords: [17.4475, 78.3580], cat: "Fresh Smoothies & Juices (₹140 - ₹220)" },
+      { name: "Drunken Monkey (Madhapur 100ft Rd)", coords: [17.4505, 78.3905], cat: "Smoothies & Bowls" },
+      { name: "The ThickShake Factory (Kondapur Main Rd)", coords: [17.4650, 78.3580], cat: "Thick Shakes (₹150 - ₹240)" },
+      { name: "The ThickShake Factory (Himayatnagar)", coords: [17.4025, 78.4845], cat: "Milkshakes & Desserts" },
+      { name: "Keventers (Inorbit Mall)", coords: [17.4345, 78.3865], cat: "Milkshakes & Coolers" },
+      
+      // Modern Bubble Tea & Chai Chains
+      { name: "Boba Bhai (Banjara Hills Rd 12)", coords: [17.4160, 78.4350], cat: "Boba & Shakes (₹220 - ₹320)" },
+      { name: "Boba Bhai (Knowledge City)", coords: [17.4335, 78.3825], cat: "Bubble Tea" },
+      { name: "Chaayos (Mindspace Madhapur)", coords: [17.4405, 78.3810], cat: "Chai & Snack Fast-Casual" },
+      { name: "Chai Point (Financial Dist)", coords: [17.4175, 78.3475], cat: "Daily Corporate Beverage" }
+    ];
+
+    competitors.forEach(c => {
+      const popup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#ad1457;">${c.name}</div>
+          <div class="popup-content">
+            <b>Segment:</b> ${c.cat}<br/>
+            <p style="margin-top:4px; font-size:11px; color:#555;">Validates high willingness-to-pay for daily ₹140+ discretionary beverages in this immediate pocket.</p>
+          </div>
+        </div>
+      `;
+      L.marker(c.coords, { icon: makeIcon('#d81b60', 'fa-solid fa-mug-saucer') })
+        .bindPopup(popup)
+        .addTo(lg_competitors);
+    });
+
+    // -------------------------------------------------------------
+    // LAYER D: TARGET BEING JUICE STORES (40-50 CUPS / DAY)
     // -------------------------------------------------------------
     const lg_stores = L.layerGroup();
-    const storeCandidates = [
+    const targetStores = [
       {
         name: "Knowledge City Food Concourse",
         coords: [17.4342, 78.3822],
@@ -136,7 +208,7 @@
         rent: "₹30k - ₹50k base + 12% rev share",
         targetCups: "60 - 90 cups/day",
         peak: "1:30 PM - 5:30 PM",
-        why: "45,000 captive corporate employees (JP Morgan, HSBC, Novartis). 50 cups requires just 0.11% capture rate."
+        why: "45,000 corporate staff. Capturing 50 cups requires only 0.11% footfall conversion."
       },
       {
         name: "Jubilee Hills Road 36 / 45 Junction",
@@ -144,8 +216,8 @@
         format: "Format 2: Standalone Walk-in Counter",
         rent: "₹1.4L - ₹2.0L/mo",
         targetCups: "70 - 110 cups/day (AOV ₹320)",
-        peak: "6:00 PM - 11:30 PM & Weekend Mornings",
-        why: "Highest wealth density in Telangana. Direct clustering next to Third Wave & Boba Bhai."
+        peak: "6:00 PM - 11:30 PM",
+        why: "Clustered directly beside Blue Tokai & Boba Bhai; highest basket size in city."
       },
       {
         name: "KBR Park Main Perimeter Gate",
@@ -154,16 +226,16 @@
         rent: "₹35k - ₹60k/mo",
         targetCups: "50 - 80 cups/day",
         peak: "6:00 AM - 10:30 AM",
-        why: "6,000+ affluent joggers & walkers daily. Fresh citrus & detox juice matches morning mindset."
+        why: "6,000+ affluent morning joggers & walkers daily. Fresh citrus & detox juice capture point."
       },
       {
         name: "Financial District Waverock Concourse",
         coords: [17.4184, 78.3486],
-        format: "Format 3: Canteen Counter",
+        format: "Format 3: Corporate Canteen",
         rent: "10% - 14% Operator Commission",
         targetCups: "55 - 85 cups/day",
         peak: "12:30 PM - 4:30 PM",
-        why: "25,000+ IT staff. Zero delivery packaging costs, immediate cash collection via corporate badge."
+        why: "25,000+ tech workforce. Cashless badge checkout, zero aggregator packaging bleed."
       },
       {
         name: "Sainikpuri 5th Avenue High-Street",
@@ -172,18 +244,18 @@
         rent: "₹45k - ₹70k/mo",
         targetCups: "45 - 65 cups/day",
         peak: "4:00 PM - 10:00 PM",
-        why: "Proven cafe culture (Coffee Cup, Groove). Defense & NRI retirement wealth with high daily wellness budget."
+        why: "Dense affluent defense & NRI retirement community with high cafe spending habits."
       }
     ];
 
-    storeCandidates.forEach(s => {
+    targetStores.forEach(s => {
       const popup = `
         <div class="popup-box">
           <div class="popup-header" style="background:#1b5e20;">${s.name}</div>
           <div class="popup-content">
             <div class="kpi-row"><b>Format:</b> <span>${s.format}</span></div>
-            <div class="kpi-row"><b>Target Rent:</b> <span>${s.rent}</span></div>
-            <div class="kpi-row"><b>Volume Target:</b> <span>${s.targetCups}</span></div>
+            <div class="kpi-row"><b>Rent:</b> <span>${s.rent}</span></div>
+            <div class="kpi-row"><b>Baseline Target:</b> <span>${s.targetCups}</span></div>
             <div class="kpi-row"><b>Peak Window:</b> <span>${s.peak}</span></div>
             <p style="margin-top:6px; color:#555; font-size:11px;"><b>Conversion Logic:</b> ${s.why}</p>
           </div>
@@ -195,16 +267,15 @@
     });
 
     // -------------------------------------------------------------
-    // LAYER 3: GOURMET CONCEPTS & SHOP-IN-SHOP (SIS) PARTNERS
+    // LAYER E: SHOP-IN-SHOP (SIS) GOURMET GROCERS
     // -------------------------------------------------------------
     const lg_gourmet = L.layerGroup();
     const gourmetPartners = [
-      { name: "Q-Mart Gourmet (Banjara Hills Rd 2)", coords: [17.4225, 78.4312], note: "Highest grocery ticket in Hyderabad; HNW organic shoppers" },
-      { name: "Q-Mart Gourmet (Gachibowli ORR)", coords: [17.4398, 78.3541], note: "Serves Financial District CXOs & gated villas" },
-      { name: "Ratnadeep Select (Jubilee Hills Rd 36)", coords: [17.4310, 78.4095], note: "Prime high-end grocery footfall with daily affluent repeats" },
-      { name: "Nature's Basket (Jubilee Hills Rd 36)", coords: [17.4340, 78.4080], note: "Exotic imported health food and vegan buyer base" },
-      { name: "Ratnadeep Select (Financial District)", coords: [17.4170, 78.3490], note: "Captive evening grocery buyers from Prestige High Fields" },
-      { name: "Spencer's Gourmet / Ratnadeep (Sainikpuri)", coords: [17.4880, 78.5460], note: "Defense & senior executive grocery traffic" }
+      { name: "Q-Mart Gourmet (Banjara Hills Rd 2)", coords: [17.4225, 78.4312], note: "Top luxury supermarket in HYD; highest organic fruit ticket" },
+      { name: "Q-Mart Gourmet (Gachibowli ORR)", coords: [17.4398, 78.3541], note: "Serves gated luxury villas & tech executives" },
+      { name: "Ratnadeep Select (Jubilee Hills Rd 36)", coords: [17.4310, 78.4095], note: "Affluent daily repeat grocery footfall" },
+      { name: "Nature's Basket (Jubilee Hills Rd 36)", coords: [17.4340, 78.4080], note: "Imported health foods & vegan grocery audience" },
+      { name: "Ratnadeep Select (Financial District)", coords: [17.4170, 78.3490], note: "High-earning evening grocery shoppers from Prestige High Fields" }
     ];
 
     gourmetPartners.forEach(g => {
@@ -224,7 +295,7 @@
     });
 
     // -------------------------------------------------------------
-    // LAYER 4: CORPORATE CANTEENS (>₹12L CTC)
+    // LAYER F: CORPORATE CANTEENS (>₹12L CTC)
     // -------------------------------------------------------------
     const lg_canteens = L.layerGroup();
     const corporateCampuses = [
@@ -240,9 +311,8 @@
         <div class="popup-box">
           <div class="popup-header" style="background:#bf360c;">${c.name}</div>
           <div class="popup-content">
-            <b>Campus Scale:</b> ${c.staff}<br/>
-            <b>Menu Alignment:</b> Whey Protein Shakes, 2 PM Slump Cleanses<br/>
-            <b>Access Method:</b> Compass / Sodexo Master Facility Tender
+            <b>Scale:</b> ${c.staff}<br/>
+            <b>Access:</b> Compass / Sodexo Master Catering Tender
           </div>
         </div>
       `;
@@ -252,16 +322,15 @@
     });
 
     // -------------------------------------------------------------
-    // LAYER 5: SPORTS, PICKLEBALL & FITNESS HUBS
+    // LAYER G: SPORTS, PICKLEBALL & FITNESS HUBS
     // -------------------------------------------------------------
     const lg_sports = L.layerGroup();
     const sportsHubs = [
       { name: "One Golf & Southside Pickleball (Financial Dist)", coords: [17.4130, 78.3420], type: "Pickleball & Driving Range" },
       { name: "Cult.fit Signature (Jubilee Hills Rd 36)", coords: [17.4320, 78.4060], type: "High-density elite gym" },
-      { name: "The Arena Pickleball Club (Kokapet)", coords: [17.4060, 78.3260], type: "Pickleball & Box Cricket" },
-      { name: "Cult.fit (Knowledge City)", coords: [17.4330, 78.3810], type: "Corporate tech fitness rush" },
-      { name: "Durgam Cheruvu Walkers Concourse", coords: [17.4330, 78.3890], type: "Morning fitness track" },
-      { name: "Sainikpuri Club & Badminton Arena", coords: [17.4910, 78.5480], type: "Badminton & Lawn Tennis" }
+      { name: "The Arena Pickleball Club (Kokapet)", coords: [17.4060, 78.3260], type: "Pickleball & Turf Arena" },
+      { name: "Cult.fit (Knowledge City)", coords: [17.4330, 78.3810], type: "Corporate tech fitness traffic" },
+      { name: "Durgam Cheruvu Walking Deck", coords: [17.4330, 78.3890], type: "Morning/Evening fitness track" }
     ];
 
     sportsHubs.forEach(s => {
@@ -270,7 +339,7 @@
           <div class="popup-header" style="background:#0277bd;">${s.name}</div>
           <div class="popup-content">
             <b>Type:</b> ${s.type}<br/>
-            <b>Value for Being Juice:</b> Immediate post-workout protein shake and pure electrolyte capture.
+            <b>Conversion:</b> Immediate post-workout protein shakes and hydration.
           </div>
         </div>
       `;
@@ -280,64 +349,27 @@
     });
 
     // -------------------------------------------------------------
-    // LAYER 6: COMPETITOR VALIDATION (STARBUCKS, BOBA BHAI, THIRD WAVE)
+    // 8. ADD LAYERS TO MAP
     // -------------------------------------------------------------
-    const lg_competitors = L.layerGroup();
-    const competitors = [
-      { name: "Third Wave Coffee & Boba Bhai (Knowledge City)", coords: [17.4340, 78.3830] },
-      { name: "Starbucks & Roastery (Jubilee Hills Rd 36)", coords: [17.4345, 78.4075] },
-      { name: "Third Wave Coffee (Financial District One West)", coords: [17.4180, 78.3480] },
-      { name: "Starbucks (Kokapet Golden Mile)", coords: [17.4050, 78.3250] },
-      { name: "Starbucks & Boba Bhai (Himayatnagar)", coords: [17.4030, 78.4850] },
-      { name: "Coffee Cup (Sainikpuri)", coords: [17.4895, 78.5475] }
-    ];
-
-    competitors.forEach(cmp => {
-      L.marker(cmp.coords, { icon: makeIcon('#d81b60', 'fa-solid fa-mug-hot') })
-        .bindPopup(`<b>${cmp.name}</b><br/>Validates ₹180+ discretionary beverage spending.`)
-        .addTo(lg_competitors);
-    });
-
-    // -------------------------------------------------------------
-    // LAYER 7: GATED SOCIETIES (>₹1.5 CR - ₹5 CR+)
-    // -------------------------------------------------------------
-    const lg_societies = L.layerGroup();
-    const societies = [
-      { name: "My Home Bhooja (Raidurg)", coords: [17.4380, 78.3840], price: "₹3.5 Cr - ₹7 Cr", units: "1,800 flats" },
-      { name: "Prestige High Fields (Nanakramguda)", coords: [17.4170, 78.3490], price: "₹1.8 Cr - ₹3.5 Cr", units: "2,200 flats" },
-      { name: "My Home Tarkshya (Kokapet)", coords: [17.4020, 78.3230], price: "₹2.2 Cr - ₹4.5 Cr", units: "1,600 flats" },
-      { name: "Jayabheri Silicon County (Hitec City)", coords: [17.4470, 78.3750], price: "₹2.0 Cr - ₹4.0 Cr", units: "900 flats" },
-      { name: "Aparna Sarovar & CyberLife (Nallagandla)", coords: [17.4720, 78.3180], price: "₹1.5 Cr - ₹3.0 Cr", units: "2,500 flats" }
-    ];
-
-    societies.forEach(soc => {
-      L.marker(soc.coords, { icon: makeIcon('#455a64', 'fa-solid fa-house') })
-        .bindPopup(`<b>${soc.name}</b><br/>Property Valuation: ${soc.price}<br/>Units: ${soc.units}`)
-        .addTo(lg_societies);
-    });
-
-    // -------------------------------------------------------------
-    // 8. ADD DEFAULT ACTIVE LAYERS
-    // -------------------------------------------------------------
+    lg_dwell_heat.addTo(map);
     lg_nano.addTo(map);
     lg_stores.addTo(map);
+    lg_competitors.addTo(map);
     lg_gourmet.addTo(map);
     lg_canteens.addTo(map);
     lg_sports.addTo(map);
-    lg_competitors.addTo(map);
-    lg_societies.addTo(map);
 
     // -------------------------------------------------------------
-    // 9. LAYER CONTROLLER
+    // 9. LAYER CONTROLS (USER TOGGLE BOX)
     // -------------------------------------------------------------
     const overlays = {
+      "🔥 Customer Sitting / Dwell Heat Map": lg_dwell_heat,
       "📍 3 km Nano-Markets (NM-01 to NM-06)": lg_nano,
       "🟢 Target Being Juice Launch Pins": lg_stores,
+      "🔴 Competitors (Third Wave, Boba, Drunken Monkey)": lg_competitors,
       "🟣 Gourmet Grocers (Q-Mart / Ratnadeep SIS)": lg_gourmet,
       "🟠 Corporate Canteens (>₹12L CTC)": lg_canteens,
-      "🔵 Pickleball Courts & Cult Gyms": lg_sports,
-      "🔴 Starbucks / Boba Bhai / Third Wave": lg_competitors,
-      "⚫ Gated Communities (>₹1.5 Cr Valuation)": lg_societies
+      "🔵 Pickleball Courts & Cult Gyms": lg_sports
     };
 
     L.control.layers(null, overlays, { collapsed: false, position: 'topright' }).addTo(map);
