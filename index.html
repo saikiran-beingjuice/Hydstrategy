@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Being Juice — Hyderabad Expansion Intelligence Tool</title>
+
+  <!-- Leaflet CSS & Plugins -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html { height: 100%; width: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    #map { height: 100vh; width: 100vw; z-index: 1; }
+
+    /* Header Overlay */
+    .brand-overlay {
+      position: absolute;
+      top: 15px;
+      left: 60px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 12px 18px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      border-left: 5px solid #2e7d32;
+      max-width: 340px;
+    }
+    .brand-overlay h1 { font-size: 17px; color: #1b5e20; margin-bottom: 3px; font-weight: 700; }
+    .brand-overlay p { font-size: 11px; color: #555; line-height: 1.35; }
+
+    /* Popups */
+    .popup-card { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12.5px; line-height: 1.45; }
+    .popup-header { color: #fff; padding: 6px 10px; border-radius: 4px 4px 0 0; font-size: 13px; font-weight: bold; }
+    .popup-body { padding: 10px; border: 1px solid #e0e0e0; border-top: none; background: #fff; border-radius: 0 0 4px 4px; }
+    .popup-badge { display: inline-block; padding: 2px 6px; font-size: 10px; font-weight: bold; border-radius: 3px; margin-bottom: 6px; color: #fff; }
+    
+    /* Format Badges */
+    .badge-sis { background: #6a1b9a; }
+    .badge-standalone { background: #2e7d32; }
+    .badge-canteen { background: #e65100; }
+
+    /* Custom Map Marker Icons */
+    .custom-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: white;
+      border: 2px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="brand-overlay">
+    <h1>Being Juice — Hyderabad GIS</h1>
+    <p>Target Demographic (₹130–₹250/cup) • GHMC Ward Affluence • Formats: SIS, Standalone & Corporate Canteens (>₹12L CTC)</p>
+  </div>
+
+  <div id="map"></div>
+
+  <!-- Leaflet JS & Leaflet Heat Plugin -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+  <script>
+    // 1. Initialize Map on West & Central Hyderabad
+    const map = L.map('map', {
+      center: [17.4350, 78.3850],
+      zoom: 12,
+      zoomControl: true
+    });
+
+    // 2. Base Tile Layer (Esri WorldStreetMap - Fast, Reliable, No 403 Rate Limits)
+    const baseTile = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; Being Juice Catchment Intelligence',
+      maxZoom: 18
+    }).addTo(map);
+
+    // -------------------------------------------------------------
+    // 3. LAYER: GHMC WARD SOCIO-ECONOMIC BOUNDARIES (GEOJSON)
+    // -------------------------------------------------------------
+    const wardAffluenceData = {
+      "107": { name: "Madhapur", tg_pct: "84%", score: 96, tier: "High / Corporate Tech", color: "#004d40" },
+      "105": { name: "Gachibowli", tg_pct: "81%", score: 94, tier: "High / IT Campuses", color: "#00695c" },
+      "104": { name: "Kondapur", tg_pct: "77%", score: 89, tier: "Upper Middle Residential", color: "#00897b" },
+      "95":  { name: "Jubilee Hills", tg_pct: "89%", score: 97, tier: "Ultra Affluent / HNW", color: "#1b5e20" },
+      "93":  { name: "Banjara Hills", tg_pct: "86%", score: 93, tier: "HNW / Commercial Nexus", color: "#2e7d32" },
+      "97":  { name: "Somajiguda", tg_pct: "69%", score: 81, tier: "Middle / Commercial Core", color: "#4caf50" },
+      "114": { name: "KPHB Colony", tg_pct: "66%", score: 83, tier: "Middle / High Density", color: "#81c784" },
+      "106": { name: "Serilingampally", tg_pct: "74%", score: 86, tier: "Upper Middle", color: "#26a69a" }
+    };
+
+    const ghmcLayer = L.layerGroup();
+    fetch('https://raw.githubusercontent.com/datameet-pune/hyderabad-wards/master/data/ghmc_wards.geojson')
+      .then(res => res.json())
+      .then(geoData => {
+        L.geoJSON(geoData, {
+          style: function(feature) {
+            const wNo = String(feature.properties.ward_no || "");
+            const info = wardAffluenceData[wNo];
+            return {
+              fillColor: info ? info.color : "#9e9e9e",
+              weight: 1.2,
+              opacity: 0.9,
+              color: info ? "#1b5e20" : "#757575",
+              fillOpacity: info ? 0.28 : 0.04
+            };
+          },
+          onEachFeature: function(feature, layer) {
+            const wNo = String(feature.properties.ward_no || "");
+            const info = wardAffluenceData[wNo];
+            if (info) {
+              layer.bindTooltip(`<b>${info.name} (Ward${wNo})</b><br/>Target Group Affluence: ${info.tg_pct}<br/>Fit Score:${info.score}/100`);
+            }
+          }
+        }).addTo(ghmcLayer);
+      })
+      .catch(err => console.error("Error loading ward GeoJSON:", err));
+
+    // -------------------------------------------------------------
+    // 4. LAYER: TARGET GROUP SPENDING HEAT MAP
+    // -------------------------------------------------------------
+    const heatPoints = [
+      [17.4342, 78.3822, 1.0], // Knowledge City
+      [17.4401, 78.3814, 0.95], // Mindspace
+      [17.4483, 78.3915, 0.9],  // Madhapur Main
+      [17.4184, 78.3486, 0.94], // Financial District
+      [17.4162, 78.3441, 0.96], // Amazon Nanakramguda
+      [17.4245, 78.4230, 0.91], // KBR Park Perimeter
+      [17.4338, 78.4069, 0.98], // Jubilee Rd 36
+      [17.4478, 78.3582, 0.93], // DLF Cybercity
+      [17.4648, 78.3572, 0.86], // Kondapur Whitefields
+      [17.4125, 78.3360, 0.88], // Kokapet Neopolis
+      [17.4225, 78.4312, 0.92]  // Banjara Hills Rd 2
+    ];
+
+    const heatLayer = L.heatLayer(heatPoints, {
+      radius: 35,
+      blur: 22,
+      maxZoom: 13,
+      gradient: { 0.2: '#0022ff', 0.5: '#00ff66', 0.8: '#ffea00', 1.0: '#ff1100' }
+    });
+
+    // -------------------------------------------------------------
+    // 5. HELPER: ICON FACTORY
+    // -------------------------------------------------------------
+    function createMarkerIcon(bgColor, iconClass) {
+      return L.divIcon({
+        className: '',
+        html: `<div class="custom-icon" style="background:${bgColor}; width:32px; height:32px;"><i class="${iconClass}"></i></div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
+      });
+    }
+
+    // -------------------------------------------------------------
+    // 6. LAYER: FORMAT 1 - SHOP-IN-SHOP (SIS)
+    // -------------------------------------------------------------
+    const sisLayer = L.layerGroup();
+    const sisData = [
+      {
+        name: "Q-Mart Gourmet (Banjara Hills Rd 2)",
+        coords: [17.4225, 78.4312],
+        partner: "Q-Mart Gourmet Supermarket",
+        terms: "14% - 18% Rev Share or ₹40k - ₹55k/mo",
+        audience: "Ultra-affluent grocery shoppers; proven highest organic basket size in HYD",
+        menu: "Cold-pressed bottles, superfood smoothie bowls, detox shots"
+      },
+      {
+        name: "Q-Mart Gourmet (Gachibowli Outer Ring Rd)",
+        coords: [17.4398, 78.3541],
+        partner: "Q-Mart Gourmet Supermarket",
+        terms: "12% - 16% Rev Share",
+        audience: "Gated villa residents, Financial District tech CXOs",
+        menu: "Ready-to-drink detox cleanses, functional whey shakes"
+      },
+      {
+        name: "Ratnadeep Select (Jubilee Hills Rd 36)",
+        coords: [17.4310, 78.4095],
+        partner: "Ratnadeep Select",
+        terms: "12% - 15% Rev Share",
+        audience: "High-frequency affluent daily buyers picking fresh provisions",
+        menu: "Fresh citrus coolers, clean immunity boosters, sugar-free cold juices"
+      },
+      {
+        name: "Lifestyle (Inorbit Mall, Madhapur)",
+        coords: [17.4344, 78.3871],
+        partner: "Lifestyle Departmental Store",
+        terms: "15% - 20% Rev Share / Mall sub-lease",
+        audience: "Weekend family leisure shoppers, young professionals",
+        menu: "Indulgent fruit shakes, thick avocado bowls, frappes"
+      }
+    ];
+
+    sisData.forEach(item => {
+      const popupHtml = `
+        <div class="popup-card">
+          <div class="popup-header" style="background:#4a148c;">${item.name}</div>
+          <div class="popup-body">
+            <span class="popup-badge badge-sis">Format 1: Shop-in-Shop</span><br/>
+            <b>Host Partner:</b> ${item.partner}<br/>
+            <b>Target Commercials:</b> ${item.terms}<br/>
+            <b>Audience Profile:</b> ${item.audience}<br/>
+            <hr style="margin:6px 0; border:0; border-top:1px solid #eee;"/>
+            <b>Optimal Menu Mix:</b> ${item.menu}
+          </div>
+        </div>
+      `;
+      L.marker(item.coords, { icon: createMarkerIcon('#6a1b9a', 'fa-solid fa-cart-shopping') })
+        .bindPopup(popupHtml)
+        .addTo(sisLayer);
+    });
+
+    // -------------------------------------------------------------
+    // 7. LAYER: FORMAT 2 - STANDALONE STORES
+    // -------------------------------------------------------------
+    const standaloneLayer = L.layerGroup();
+    const standaloneData = [
+      {
+        name: "Jubilee Hills Road 36 Flagship",
+        coords: [17.4338, 78.4069],
+        format: "Flagship Experiential Cafe (800-1100 sq ft)",
+        rent: "₹190 - ₹270 / sq ft",
+        breakeven: "85 - 110 checks/day (AOV ₹320+)",
+        anchors: "High-street fashion, Cult boutique, luxury salons",
+        focus: "Brand flagship, dine-in superfood bowls, high evening footfall"
+      },
+      {
+        name: "DLF Cybercity Food Promenade (Gachibowli)",
+        coords: [17.4478, 78.3582],
+        format: "High-Street QSR Counter (250-400 sq ft)",
+        rent: "₹160 - ₹240 / sq ft",
+        breakeven: "140 - 180 cups/day",
+        anchors: "DLF food street, Drunken Monkey, Chai Point, Subway",
+        focus: "High-velocity evening takeaway, continuous walk-in pedestrian traffic"
+      },
+      {
+        name: "Kondapur Whitefields Commercial Spine",
+        coords: [17.4648, 78.3572],
+        format: "Walk-in Counter + Swiggy Hub (200-350 sq ft)",
+        rent: "₹100 - ₹150 / sq ft",
+        breakeven: "90 - 130 orders/day",
+        anchors: "Cult Gym, Aparna & My Home gated communities",
+        focus: "Dual-engine: morning fitness crowd + high residential delivery"
+      },
+      {
+        name: "KBR National Park Perimeter (Jubilee Rd 2)",
+        coords: [17.4245, 78.4230],
+        format: "Early-Bird Juice Kiosk (120-200 sq ft)",
+        rent: "₹150 - ₹220 / sq ft",
+        breakeven: "110 - 140 cups/day",
+        anchors: "KBR walking track gate, morning fitness community",
+        focus: "Peak 6:00 AM - 10:30 AM cold-pressed detox & fresh citrus rush"
+      }
+    ];
+
+    standaloneData.forEach(item => {
+      const popupHtml = `
+        <div class="popup-card">
+          <div class="popup-header" style="background:#1b5e20;">${item.name}</div>
+          <div class="popup-body">
+            <span class="popup-badge badge-standalone">Format 2: Standalone Store</span><br/>
+            <b>Format Type:</b> ${item.format}<br/>
+            <b>Target Rent:</b> ${item.rent}<br/>
+            <b>Est. Break-Even:</b> ${item.breakeven}<br/>
+            <b>Key Anchors:</b> ${item.anchors}<br/>
+            <hr style="margin:6px 0; border:0; border-top:1px solid #eee;"/>
+            <b>Strategy:</b> ${item.focus}
+          </div>
+        </div>
+      `;
+      L.marker(item.coords, { icon: createMarkerIcon('#2e7d32', 'fa-solid fa-store') })
+        .bindPopup(popupHtml)
+        .addTo(standaloneLayer);
+    });
+
+    // -------------------------------------------------------------
+    // 8. LAYER: FORMAT 3 - CORPORATE CANTEENS (>₹12L SALARY)
+    // -------------------------------------------------------------
+    const corporateLayer = L.layerGroup();
+    const corporateData = [
+      {
+        name: "Amazon Hyderabad Campus (Nanakramguda)",
+        coords: [17.4162, 78.3441],
+        workforce: "~15,000+ employees",
+        salary: "Median CTC: ₹16L - ₹28L+ (L4/L5 Tech & AWS)",
+        entry: "Cafeteria tender via Master Facility Operator (Compass / Sodexo)",
+        playbook: "Post-lunch 2 PM slump hydration, morning gym fuel (Whey protein shakes)"
+      },
+      {
+        name: "Microsoft R&D Campus (Gachibowli)",
+        coords: [17.4435, 78.3772],
+        workforce: "~9,000+ tech employees",
+        salary: "Median CTC: ₹20L - ₹38L+ (Core Engineering)",
+        entry: "Empaneled campus catering partner",
+        playbook: "High health-orientation, zero-sugar functional cold-pressed detox"
+      },
+      {
+        name: "Sattva Knowledge City Concourse",
+        coords: [17.4342, 78.3822],
+        workforce: "~45,000+ employees across towers",
+        salary: "Median CTC: ₹14L - ₹25L (JP Morgan, State Street, Novartis)",
+        entry: "Sattva building management retail lease / Atrium Kiosk",
+        playbook: "Concourse footfall, quick grab-and-go meeting bottles"
+      },
+      {
+        name: "Waverock IT Park (Nanakramguda)",
+        coords: [17.4184, 78.3486],
+        workforce: "~25,000+ employees (Apple, Accenture Tech, GAP)",
+        salary: "Median CTC: ₹12L - ₹22L",
+        entry: "Centralized Food Court Lease",
+        playbook: "High volume 12:30 PM - 4:30 PM corporate peak"
+      }
+    ];
+
+    corporateData.forEach(item => {
+      const popupHtml = `
+        <div class="popup-card">
+          <div class="popup-header" style="background:#bf360c;">${item.name}</div>
+          <div class="popup-body">
+            <span class="popup-badge badge-canteen">Format 3: Canteen (>₹12L CTC)</span><br/>
+            <b>Workforce:</b> ${item.workforce}<br/>
+            <b>Compensation Profile:</b> <span style="color:#d84315; font-weight:bold;">${item.salary}</span><br/>
+            <b>Access Route:</b> ${item.entry}<br/>
+            <hr style="margin:6px 0; border:0; border-top:1px solid #eee;"/>
+            <b>Strategy:</b> ${item.playbook}
+          </div>
+        </div>
+      `;
+      L.marker(item.coords, { icon: createMarkerIcon('#e65100', 'fa-solid fa-briefcase') })
+        .bindPopup(popupHtml)
+        .addTo(corporateLayer);
+    });
+
+    // -------------------------------------------------------------
+    // 9. ADD DEFAULT LAYERS TO MAP
+    // -------------------------------------------------------------
+    ghmcLayer.addTo(map);
+    heatLayer.addTo(map);
+    sisLayer.addTo(map);
+    standaloneLayer.addTo(map);
+    corporateLayer.addTo(map);
+
+    // -------------------------------------------------------------
+    // 10. LAYER CONTROLS (USER TOGGLE BOX)
+    // -------------------------------------------------------------
+    const overlayMaps = {
+      "🔥 Spending Heat Map": heatLayer,
+      "🗺️ GHMC Ward Socio-Economic Layer": ghmcLayer,
+      "🟣 Format 1: Shop-in-Shop (Q-Mart / Ratnadeep / Lifestyle)": sisLayer,
+      "🟢 Format 2: Standalone High-Street Stores": standaloneLayer,
+      "🟠 Format 3: Canteens (>₹12L Salary Campuses)": corporateLayer
+    };
+
+    L.control.layers(null, overlayMaps, { collapsed: false, position: 'topright' }).addTo(map);
+  </script>
+</body>
+</html>
