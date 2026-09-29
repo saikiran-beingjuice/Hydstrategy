@@ -471,3 +471,127 @@
   </script>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hyderabad Directories</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .file-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .file-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+      padding: 1.25rem;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .file-icon {
+      background-color: #e0f2fe;
+      color: #0284c7;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .file-details h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .file-details p {
+      margin: 0.25rem 0 0;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .btn-download {
+      display: inline-block;
+      background-color: #0f172a;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .btn-download:hover {
+      background-color: #334155;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hyderabad Resource Directories</h1>
+
+    <div class="file-grid">
+      <!-- File 1 -->
+      <div class="file-card">
+        <div class="file-info">
+          <div class="file-icon">XLSX</div>
+          <div class="file-details">
+            <h2>Hyderabad Master Directory</h2>
+            <p>Food & Beverage, Fitness, and Nightlife</p>
+          </div>
+        </div>
+        <a href="Hyderabad_Master_Directory_FandB_Fitness_Nightlife.xlsx" class="btn-download" download>
+          Download
+        </a>
+      </div>
+
+      <!-- File 2 -->
+      <div class="file-card">
+        <div class="file-info">
+          <div class="file-icon">XLSX</div>
+          <div class="file-details">
+            <h2>Hyderabad Corporate Companies</h2>
+            <p>Organizations with compensation packages above 12 LPA</p>
+          </div>
+        </div>
+        <a href="Hyderabad_Corporate_Companies_Above_12_LPA.xlsx" class="btn-download" download>
+          Download
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
