@@ -8,6 +8,9 @@
   <!-- Leaflet CSS & Awesome Fonts -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Leaflet MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,7 +29,7 @@
       border-radius: 8px;
       box-shadow: 0 6px 24px rgba(0,0,0,0.22);
       border-left: 6px solid #2e7d32;
-      max-width: 430px;
+      max-width: 440px;
     }
     .dashboard-panel h1 { font-size: 16px; color: #1b5e20; margin-bottom: 3px; font-weight: 800; }
     .dashboard-panel p { font-size: 11px; color: #444; line-height: 1.4; }
@@ -57,25 +60,26 @@
 
   <div class="dashboard-panel">
     <h1>Being Juice — Hyderabad Catchment Master GIS</h1>
-    <p>Calibrated for <b>40–50 cups/day baseline ($100\%$ strike rate)</b> at ₹130–₹250. Includes spreadsheet-integrated high-rise societies, city-wide Cult.fit & Gold's gyms, Starbucks clusters, true 3 km on-road driving sheds, and recalibrated dwell heat maps.</p>
+    <p>Calibrated for <b>40–50 cups/day ($100\%$ strike rate)</b> at ₹130–₹250. Includes all <b>3,969 apartments from your dataset</b>, city-wide Cult.fit & Gold's gyms, Starbucks clusters, true 3 km on-road driving sheds, and recalibrated dwell heat maps.</p>
     <div class="badge-bar">
       <span class="badge-pill" style="background:#2e7d32;">Top 5 Stores</span>
       <span class="badge-pill" style="background:#0288d1;">Cult / Gold's / Gyms</span>
       <span class="badge-pill" style="background:#00796b;">Starbucks & Cafes</span>
       <span class="badge-pill" style="background:#d81b60;">Bakeries & QSR</span>
-      <span class="badge-pill" style="background:#37474f;">Gated Societies (Spreadsheet)</span>
+      <span class="badge-pill" style="background:#37474f;">3,969 Societies (Sheet)</span>
       <span class="badge-pill" style="background:#e65100;">Canteens (>₹12L)</span>
     </div>
   </div>
 
   <div id="map"></div>
 
-  <!-- Leaflet & HeatMap Plugin Bundle -->
+  <!-- Leaflet, HeatMap, and MarkerCluster JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
   <script>
-    // 1. Initialize Map centered on West & Central Hyderabad
+    // 1. Initialize Map
     const map = L.map('map', {
       center: [17.4400, 78.3750],
       zoom: 12,
@@ -162,24 +166,15 @@
 
     // -------------------------------------------------------------
     // LAYER 2: RECALIBRATED RECEPTIVE DWELL HEAT MAP
-    // Scaled across residential clusters, tech park atriums, and fitness hubs
     // -------------------------------------------------------------
     const dwellHeatPoints = [
-      // Knowledge City & Inorbit
       [17.4342, 78.3822, 1.0], [17.4350, 78.3830, 0.95], [17.4344, 78.3871, 0.9],
-      // Mindspace & DLF
       [17.4401, 78.3814, 0.98], [17.4478, 78.3582, 0.95], [17.4184, 78.3486, 0.97],
-      // Financial District Towers (Prestige High Fields, Waverock)
       [17.4170, 78.3490, 0.96], [17.4134, 78.3394, 0.94], [17.4113, 78.3572, 0.92],
-      // Jubilee Hills & KBR Park
       [17.4338, 78.4069, 0.95], [17.4300, 78.4110, 0.92], [17.4245, 78.4230, 0.9],
-      // Kokapet High-Rise Belt
       [17.4020, 78.3230, 0.88], [17.3954, 78.3550, 0.9], [17.4045, 78.3248, 0.85],
-      // Kondapur & Nallagandla Towers (Aparna, My Home Mangala)
       [17.4664, 78.3116, 0.88], [17.4748, 78.3472, 0.89], [17.4650, 78.3580, 0.87],
-      // Miyapur & Bachupally (Praneeth Antilia, Metro, Urbanrise)
       [17.4968, 78.3614, 0.9], [17.5167, 78.2952, 0.88], [17.5395, 78.3581, 0.86],
-      // Central / Himayatnagar & Sainikpuri
       [17.4020, 78.4840, 0.88], [17.4890, 78.5470, 0.85]
     ];
     const lg_dwell_heat = L.heatLayer(dwellHeatPoints, {
@@ -188,7 +183,7 @@
     });
 
     // -------------------------------------------------------------
-    // LAYER 3: TOP 5 TARGET BEING JUICE STORES (40-50 CUPS/DAY)
+    // LAYER 3: TOP 5 TARGET BEING JUICE STORES
     // -------------------------------------------------------------
     const lg_stores = L.layerGroup();
     const targetStores = [
@@ -198,7 +193,7 @@
         format: "Format A: Micro Kiosk (80 sq ft)",
         rent: "₹35k - ₹50k + 12% rev share",
         targetCups: "65 - 95 cups/day",
-        peak: "1:30 PM - 5:30 PM (Midday corporate slump)",
+        peak: "1:30 PM - 5:30 PM",
         why: "45,000 corporate staff. Capturing 50 cups requires only 0.11% footfall capture."
       },
       {
@@ -207,8 +202,8 @@
         format: "Format 2: Standalone Walk-in Counter / Cafe",
         rent: "₹1.4L - ₹2.0L/mo",
         targetCups: "75 - 110 cups/day (AOV ₹320)",
-        peak: "6:00 PM - 11:30 PM & Weekend Mornings",
-        why: "Beside Blue Tokai, Boba Bhai & Harley's. Highest basket size and brand halo in the state."
+        peak: "6:00 PM - 11:30 PM",
+        why: "Beside Blue Tokai, Boba Bhai & Harley's. Highest basket size and brand halo."
       },
       {
         name: "Store 3: Q-Mart Gourmet Supermarket Foyer",
@@ -217,7 +212,7 @@
         rent: "14% - 16% Revenue Share",
         targetCups: "45 - 65 cups/day",
         peak: "11:00 AM - 2:00 PM & 5:00 PM - 8:30 PM",
-        why: "Pre-screened affluent grocery buyers paying premium for organic produce. Minimal capex."
+        why: "Pre-screened affluent grocery buyers paying premium for organic produce."
       },
       {
         name: "Store 4: Prestige High Fields / One West Spine",
@@ -226,7 +221,7 @@
         rent: "₹70k - ₹1.1L/mo",
         targetCups: "60 - 90 cups/day",
         peak: "7:30 AM - 10:00 AM & 6:00 PM - 10:30 PM",
-        why: "2,240 flats in Prestige High Fields + Waverock tech staff. High evening delivery volume."
+        why: "2,240 flats in Prestige High Fields + Waverock tech staff."
       },
       {
         name: "Store 5: Miyapur Metro Concourse (Below Cult Gym)",
@@ -234,8 +229,8 @@
         format: "Format 2: Transit High-Street Counter",
         rent: "₹45k - ₹70k/mo",
         targetCups: "55 - 80 cups/day",
-        peak: "5:00 PM - 9:30 PM (Evening commuter return)",
-        why: "Terminal Red Line metro station footfall + direct exit from Cult Gym Miyapur upstairs."
+        peak: "5:00 PM - 9:30 PM",
+        why: "Terminal Red Line metro station footfall + Cult Gym Miyapur upstairs."
       }
     ];
 
@@ -262,7 +257,6 @@
     // -------------------------------------------------------------
     const lg_fitness = L.layerGroup();
     const fitnessNodes = [
-      // Cult.fit Centers across Greater Hyderabad
       { name: "Cult.fit Madhapur (Sun Towers)", coords: [17.4490, 78.3880], type: "Cult Group Workout" },
       { name: "Cult.fit Knowledge City", coords: [17.4330, 78.3810], type: "Cult Center" },
       { name: "Cult.fit Kavuri Hills", coords: [17.4420, 78.3960], type: "Cult Center" },
@@ -278,23 +272,18 @@
       { name: "Cult.fit Nizampet X Roads", coords: [17.5020, 78.3820], type: "Cult Pass Partner" },
       { name: "Cult.fit Himayatnagar", coords: [17.4020, 78.4830], type: "Cult Center" },
       { name: "Cult.fit AS Rao Nagar", coords: [17.4870, 78.5490], type: "Cult Center" },
-      { name: "Cult.fit Begumpet (Roxana Sanai)", coords: [17.4420, 78.4680], type: "Cult Center" },
-      
-      // Gold's Gym Centers
+      { name: "Cult.fit Begumpet", coords: [17.4420, 78.4680], type: "Cult Center" },
       { name: "Gold's Gym (Banjara Hills Rd 10)", coords: [17.4250, 78.4380], type: "Gold's Luxury Tier" },
-      { name: "Gold's Gym (Hyderguda / Himayatnagar)", coords: [17.3990, 78.4820], type: "Gold's Gym" },
-      { name: "Gold's Gym (Gopanpally / Gachibowli)", coords: [17.4310, 78.3280], type: "Gold's Gym" },
-      { name: "Gold's Gym (Secunderabad / Marredpally)", coords: [17.4420, 78.5020], type: "Gold's Gym" },
+      { name: "Gold's Gym (Hyderguda)", coords: [17.3990, 78.4820], type: "Gold's Gym" },
+      { name: "Gold's Gym (Gopanpally)", coords: [17.4310, 78.3280], type: "Gold's Gym" },
+      { name: "Gold's Gym (Secunderabad)", coords: [17.4420, 78.5020], type: "Gold's Gym" },
       { name: "Gold's Gym (Kukatpally)", coords: [17.4880, 78.4080], type: "Gold's Gym" },
-
-      // Boutique F45 & International Gyms
       { name: "F45 Training (Jubilee Hills Rd 36)", coords: [17.4320, 78.4070], type: "Functional 45 Boutique" },
       { name: "F45 Training (Gachibowli)", coords: [17.4410, 78.3640], type: "Functional 45 Boutique" },
-      { name: "Anytime Fitness (Kondapur Ektha Pearl)", coords: [17.4640, 78.3580], type: "24/7 International Gym" },
-      { name: "Anytime Fitness (Kokapet)", coords: [17.4060, 78.3240], type: "Anytime Fitness" },
-      { name: "Volt Fitness Club (Alkapur/Manikonda)", coords: [17.3980, 78.3680], type: "Luxury Fitness Titan" },
+      { name: "Anytime Fitness (Kondapur)", coords: [17.4640, 78.3580], type: "24/7 Gym" },
+      { name: "Anytime Fitness (Kokapet)", coords: [17.4060, 78.3240], type: "24/7 Gym" },
       { name: "Southside Pickleball Club (Knowledge City)", coords: [17.4335, 78.3840], type: "Pickleball Arena" },
-      { name: "One Golf Driving Range & Courts (Financial Dist)", coords: [17.4130, 78.3420], type: "Golf & Pickleball" },
+      { name: "One Golf Driving Range & Courts", coords: [17.4130, 78.3420], type: "Golf & Pickleball" },
       { name: "The Arena Pickleball Club (Kokapet)", coords: [17.4060, 78.3260], type: "Pickleball Arena" }
     ];
 
@@ -323,14 +312,13 @@
       { name: "Starbucks (Banjara Hills Rd 12)", coords: [17.4155, 78.4340], type: "Starbucks" },
       { name: "Starbucks (Financial District One West)", coords: [17.4180, 78.3480], type: "Starbucks" },
       { name: "Starbucks (Kokapet Golden Mile)", coords: [17.4050, 78.3250], type: "Starbucks" },
-      { name: "Starbucks (Inorbit Mall Madhapur)", coords: [17.4342, 78.3868], type: "Starbucks" },
+      { name: "Starbucks (Inorbit Mall)", coords: [17.4342, 78.3868], type: "Starbucks" },
       { name: "Starbucks (Sarath City Capital Mall)", coords: [17.4578, 78.3638], type: "Starbucks" },
       { name: "Starbucks (Himayatnagar)", coords: [17.4030, 78.4850], type: "Starbucks" },
       { name: "Starbucks (AS Rao Nagar)", coords: [17.4880, 78.5480], type: "Starbucks" },
       { name: "Third Wave Coffee (Knowledge City)", coords: [17.4335, 78.3825], type: "Specialty Coffee" },
       { name: "Blue Tokai Coffee (Jubilee Rd 36)", coords: [17.4320, 78.4080], type: "Specialty Coffee" },
-      { name: "Roastery Coffee House (Banjara Rd 14)", coords: [17.4180, 78.4280], type: "Artisan Coffee" },
-      { name: "True Black Speciality Coffee (Jubilee)", coords: [17.4305, 78.4040], type: "Gourmet Coffee" }
+      { name: "Roastery Coffee House (Banjara Rd 14)", coords: [17.4180, 78.4280], type: "Artisan Coffee" }
     ];
 
     coffeeNodes.forEach(c => {
@@ -339,7 +327,7 @@
           <div class="popup-header" style="background:#004d40;">${c.name}</div>
           <div class="popup-content">
             <b>Brand:</b> ${c.type}<br/>
-            <p style="margin-top:4px; font-size:11px; color:#555;">Validates high willingness-to-pay for daily ₹180+ discretionary beverages in this immediate pocket.</p>
+            <p style="margin-top:4px; font-size:11px; color:#555;">Validates consumer willingness to pay ₹180+ for daily discretionary beverages.</p>
           </div>
         </div>
       `;
@@ -357,14 +345,12 @@
       { name: "Harley's Fine Baking (Madhapur 100ft Rd)", coords: [17.4520, 78.3890], cat: "Fine Baking & Coffee" },
       { name: "Cafe Niloufer Lounge (Banjara Hills Rd 12)", coords: [17.4150, 78.4330], cat: "Chai Lounge (45 min dwell)" },
       { name: "Cafe Niloufer Lounge (Raidurg / Mindspace)", coords: [17.4390, 78.3790], cat: "Chai & Snacking Lounge" },
-      { name: "Cafe Niloufer (Old MLA Quarters)", coords: [17.4010, 78.4830], cat: "Iconic Dwell Anchor" },
       { name: "Conçù Patisserie (Jubilee Rd 37)", coords: [17.4350, 78.4020], cat: "Luxury Patisserie" },
       { name: "Karachi Bakery Flagship (Banjara Rd 1)", coords: [17.4190, 78.4490], cat: "Upscale Cafe & Bakery" },
       { name: "Drunken Monkey (DLF Gachibowli)", coords: [17.4475, 78.3580], cat: "Smoothies & Juices (₹150 - ₹220)" },
       { name: "The ThickShake Factory (Kondapur)", coords: [17.4650, 78.3580], cat: "Thickshakes & Desserts" },
       { name: "Boba Bhai (Banjara Hills Rd 12)", coords: [17.4160, 78.4350], cat: "Bubble Tea & Shakes (₹240+)" },
-      { name: "Subway & Samosa Party (Mindspace)", coords: [17.4405, 78.3810], cat: "Healthy Fast Food" },
-      { name: "Subway & McDonald's (Miyapur X Roads)", coords: [17.4975, 78.3625], cat: "Transit QSR" }
+      { name: "Subway & Samosa Party (Mindspace)", coords: [17.4405, 78.3810], cat: "Healthy Fast Food" }
     ];
 
     fnbClusters.forEach(f => {
@@ -373,7 +359,7 @@
           <div class="popup-header" style="background:#ad1457;">${f.name}</div>
           <div class="popup-content">
             <b>Segment:</b> ${f.cat}<br/>
-            <p style="margin-top:4px; font-size:11px; color:#555;">Co-tenancy anchor proving consumer demand for daily quick snacks and beverages.</p>
+            <p style="margin-top:4px; font-size:11px; color:#555;">Co-tenancy anchor proving consumer demand for daily snacks and beverages.</p>
           </div>
         </div>
       `;
@@ -383,57 +369,60 @@
     });
 
     // -------------------------------------------------------------
-    // LAYER 7: GATED APARTMENTS & SOCIETIES (FROM SPREADSHEET)
+    // LAYER 7: CLUSTERED APARTMENTS (3,969 FROM SPREADSHEET)
     // -------------------------------------------------------------
-    const lg_societies = L.layerGroup();
-    const spreadsheetSocieties = [
-      { name: "My Home Tridasa", builder: "My Home Constructions", units: 5270, price: "1.2 - 2.15 Cr", location: "Tellapur / RC Puram", lat: 17.51678, lon: 78.29530 },
-      { name: "The Prestige City Hyderabad", builder: "Prestige Group", units: 4766, price: "84.88 L - 2.99 Cr", location: "Rajendranagar", lat: 17.30632, lon: 78.41754 },
-      { name: "Incor Lake City", builder: "Incor Projects", units: 4000, price: "1 - 1.24 Cr", location: "Patancheru", lat: 17.52961, lon: 78.25975 },
-      { name: "My Home Sayuk", builder: "My Home Constructions", units: 3780, price: "1.4 - 2.5 Cr", location: "Tellapur", lat: 17.45914, lon: 78.29661 },
-      { name: "My Home Akrida", builder: "My Home Constructions", units: 3780, price: "Price on Request", location: "Tellapur", lat: 17.46343, lon: 78.29198 },
-      { name: "Vasavi Urban", builder: "Vasavi Group", units: 3729, price: "60 - 80 L", location: "Nizampet", lat: 17.54181, lon: 78.38493 },
-      { name: "Aparna Zenon", builder: "Aparna Constructions", units: 3668, price: "1.33 - 3.2 Cr", location: "Puppalguda / Nanakramguda", lat: 17.41138, lon: 78.35721 },
-      { name: "Rajapushpa Provincia", builder: "Rajapushpa Properties", units: 3498, price: "1.39 - 2.7 Cr", location: "Narsingi / Financial Dist", lat: 17.39540, lon: 78.35505 },
-      { name: "Urbanrise on Cloud 33", builder: "Urbanrise", units: 3395, price: "82.41 L - 1.52 Cr", location: "Bachupally / Nizampet", lat: 17.53954, lon: 78.35810 },
-      { name: "Aparna Synergy", builder: "Aparna Constructions", units: 3345, price: "79 L - 1.46 Cr", location: "Gandimaisamma", lat: 17.57787, lon: 78.41987 },
-      { name: "Honer Signatis", builder: "Honer Developers", units: 3266, price: "1.46 - 3.38 Cr", location: "Kukatpally / Moosapet", lat: 17.47406, lon: 78.41369 },
-      { name: "Aparna Sunstone", builder: "Aparna Constructions", units: 3213, price: "1.4 - 2.12 Cr", location: "Tellapur", lat: 17.43931, lon: 78.29093 },
-      { name: "Prajay Megapolis", builder: "Prajay Builders", units: 3048, price: "1.5 Cr+", location: "KPHB / Kukatpally", lat: 17.48125, lon: 78.38041 },
-      { name: "Aparna Sarovar Zicon", builder: "Aparna Constructions", units: 3024, price: "1.25 - 2.9 Cr", location: "Nallagandla", lat: 17.46508, lon: 78.31329 },
-      { name: "Rajapushpa Imperia", builder: "Rajapushpa Properties", units: 3009, price: "1.08 - 2.3 Cr", location: "Tellapur", lat: 17.45256, lon: 78.27401 },
-      { name: "My Home Avatar", builder: "My Home Constructions", units: 2800, price: "1.5 - 2.6 Cr", location: "Puppalguda", lat: 17.39878, lon: 78.35549 },
-      { name: "SMR Vinay Iconia", builder: "SMR Holdings", units: 2500, price: "1.41 - 3.73 Cr", location: "Kondapur / Masjid Banda", lat: 17.46966, lon: 78.33442 },
-      { name: "Aparna Sarovar Zenith", builder: "Aparna Constructions", units: 2477, price: "1.65 - 3.99 Cr", location: "Nallagandla", lat: 17.46641, lon: 78.31168 },
-      { name: "Prestige High Fields", builder: "Prestige Group", units: 2240, price: "1.65 - 4.9 Cr", location: "Nanakramguda / Financial Dist", lat: 17.41341, lon: 78.33945 },
-      { name: "Vasavi Atlantis", builder: "Vasavi Group", units: 2199, price: "90 L - 2.66 Cr", location: "Narsingi", lat: 17.39537, lon: 78.35780 },
-      { name: "My Home Jewel", builder: "My Home Constructions", units: 2016, price: "1.6 - 2.5 Cr", location: "Madinaguda", lat: 17.49209, lon: 78.33549 },
-      { name: "My Home Vihanga", builder: "My Home Constructions", units: 1996, price: "1.48 - 2.7 Cr", location: "Gachibowli ISB Road", lat: 17.43377, lon: 78.33225 },
-      { name: "Candeur Lakescape", builder: "Candeur Constructions", units: 1991, price: "1.11 - 2.07 Cr", location: "Serilingampally", lat: 17.47850, lon: 78.33533 },
-      { name: "My Home Mangala", builder: "My Home Constructions", units: 1879, price: "1.71 - 2.82 Cr", location: "Kondapur", lat: 17.47484, lon: 78.34721 },
-      { name: "Rajapushpa Pristinia", builder: "Rajapushpa Properties", units: 1782, price: "1.21 - 4.04 Cr", location: "Kokapet", lat: 17.39567, lon: 78.32622 },
-      { name: "My Home Bhooja", builder: "My Home Constructions", units: 1800, price: "5.5 - 12 Cr", location: "Raidurg", lat: 17.43800, lon: 78.38400 },
-      { name: "Lodha Bellezza & Meridian", builder: "Lodha Group", units: 1200, price: "2.5 - 6.5 Cr", location: "KPHB", lat: 17.48900, lon: 78.39100 },
-      { name: "SAS Crown", builder: "SAS Infra", units: 350, price: "6 - 15 Cr", location: "Kokapet (58 Floors)", lat: 17.40100, lon: 78.32100 }
-    ];
-
-    spreadsheetSocieties.forEach(s => {
-      const popup = `
-        <div class="popup-box">
-          <div class="popup-header" style="background:#263238;">${s.name}</div>
-          <div class="popup-content">
-            <div class="kpi-row"><b>Developer:</b> <span>${s.builder}</span></div>
-            <div class="kpi-row"><b>Total Units:</b> <span>${s.units.toLocaleString()} flats</span></div>
-            <div class="kpi-row"><b>Price Range:</b> <span>${s.price}</span></div>
-            <div class="kpi-row"><b>Micro-Location:</b> <span>${s.location}</span></div>
-            <p style="margin-top:5px; font-size:11px; color:#555;">Gate delivery hub on Swiggy/Zomato; morning fitness & evening family beverage ordering engine.</p>
-          </div>
-        </div>
-      `;
-      L.marker([s.lat, s.lon], { icon: makeIcon('#37474f', 'fa-solid fa-city') })
-        .bindPopup(popup)
-        .addTo(lg_societies);
+    const markers_cluster = L.markerClusterGroup({
+      chunkedLoading: true,
+      maxClusterRadius: 45,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false
     });
+
+    // Fetch and load the comprehensive dataset from apartments.json
+    fetch('apartments.json')
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(item => {
+          // Schema: [title, builder, units, price, status, pincode_name, lat, lon]
+          const title = item[0];
+          const builder = item[1];
+          const units = item[2];
+          const price = item[3];
+          const status = item[4];
+          const loc = item[5];
+          const lat = item[6];
+          const lon = item[7];
+
+          const popupHtml = `
+            <div class="popup-box">
+              <div class="popup-header" style="background:#263238;">${title}</div>
+              <div class="popup-content">
+                <div class="kpi-row"><b>Developer:</b> <span>${builder || 'N/A'}</span></div>
+                <div class="kpi-row"><b>Total Units:</b> <span>${units > 0 ? units.toLocaleString() + ' flats' : 'Residential'}</span></div>
+                <div class="kpi-row"><b>Price:</b> <span>${price}</span></div>
+                <div class="kpi-row"><b>Status:</b> <span>${status || 'Active'}</span></div>
+                <div class="kpi-row"><b>Pincode / Area:</b> <span>${loc}</span></div>
+                <p style="margin-top:5px; font-size:10.5px; color:#555;">Gate delivery hub on Swiggy/Zomato; morning fitness & evening beverage catchment.</p>
+              </div>
+            </div>
+          `;
+
+          const marker = L.circleMarker([lat, lon], {
+            radius: units >= 1000 ? 7 : (units >= 250 ? 5 : 4),
+            fillColor: units >= 1000 ? "#b71c1c" : (units >= 300 ? "#e65100" : "#455a64"),
+            color: "#ffffff",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.85
+          }).bindPopup(popupHtml);
+
+          markers_cluster.addLayer(marker);
+        });
+        console.log(`Loaded ${data.length} apartment communities.`);
+      })
+      .catch(err => {
+        console.warn("apartments.json could not be loaded via standard fetch:", err);
+      });
 
     // -------------------------------------------------------------
     // LAYER 8: CORPORATE TECH CANTEENS (>₹12L CTC)
@@ -463,7 +452,7 @@
     });
 
     // -------------------------------------------------------------
-    // 8. ADD DEFAULT LAYERS
+    // DEFAULT ACTIVATED LAYERS
     // -------------------------------------------------------------
     lg_isochrones.addTo(map);
     lg_dwell_heat.addTo(map);
@@ -471,11 +460,11 @@
     lg_fitness.addTo(map);
     lg_starbucks.addTo(map);
     lg_fnb.addTo(map);
-    lg_societies.addTo(map);
+    markers_cluster.addTo(map);
     lg_canteens.addTo(map);
 
     // -------------------------------------------------------------
-    // 9. LAYER CONTROLLER
+    // LAYER CONTROLLER
     // -------------------------------------------------------------
     const overlays = {
       "🛣️ 3 km Driving Isochrones": lg_isochrones,
@@ -484,7 +473,7 @@
       "🏋️ Cult.fit & Gold's Gyms": lg_fitness,
       "☕ Starbucks & Specialty Coffee": lg_starbucks,
       "🥐 Bakeries, Chai & QSR": lg_fnb,
-      "🏢 High-Rise Societies (Spreadsheet)": lg_societies,
+      "🏢 All 3,969 Societies (Clustered)": markers_cluster,
       "💼 Corporate Canteens (>₹12L CTC)": lg_canteens
     };
 
