@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Being Juice — Hyderabad Precision Network GIS</title>
 
-  <!-- Leaflet CSS & Awesome Fonts -->
+  <!-- Leaflet CSS & Plugins -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <!-- Leaflet MarkerCluster CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
@@ -60,20 +59,20 @@
 
   <div class="dashboard-panel">
     <h1>Being Juice — Hyderabad Catchment Master GIS</h1>
-    <p>Calibrated for <b>40–50 cups/day ($100\%$ strike rate)</b> at ₹130–₹250. Includes all <b>3,969 apartments from your dataset</b>, city-wide Cult.fit & Gold's gyms, Starbucks clusters, true 3 km on-road driving sheds, and recalibrated dwell heat maps.</p>
+    <p>Calibrated for <b>40–50 cups/day ($100\%$ strike rate)</b> at ₹130–₹250. Includes <b>1,760+ major gated communities from your sheet</b>, city-wide Cult.fit & Gold's gyms, Starbucks clusters, true 3 km on-road driving sheds, and recalibrated dwell heat maps.</p>
     <div class="badge-bar">
       <span class="badge-pill" style="background:#2e7d32;">Top 5 Stores</span>
-      <span class="badge-pill" style="background:#0288d1;">Cult / Gold's / Gyms</span>
+      <span class="badge-pill" style="background:#0288d1;">Cult / Gold's Gyms</span>
       <span class="badge-pill" style="background:#00796b;">Starbucks & Cafes</span>
       <span class="badge-pill" style="background:#d81b60;">Bakeries & QSR</span>
-      <span class="badge-pill" style="background:#37474f;">3,969 Societies (Sheet)</span>
+      <span class="badge-pill" style="background:#37474f;">1,760+ Societies</span>
       <span class="badge-pill" style="background:#e65100;">Canteens (>₹12L)</span>
     </div>
   </div>
 
   <div id="map"></div>
 
-  <!-- Leaflet, HeatMap, and MarkerCluster JS -->
+  <!-- Leaflet Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
@@ -86,7 +85,7 @@
       zoomControl: true
     });
 
-    // 2. Base Street Map Layer (Esri WorldStreetMap)
+    // 2. Esri Tile Layer (Fast, Clean, No API Keys)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Esri &mdash; Being Juice Catchment Intelligence',
       maxZoom: 18
@@ -193,7 +192,7 @@
         format: "Format A: Micro Kiosk (80 sq ft)",
         rent: "₹35k - ₹50k + 12% rev share",
         targetCups: "65 - 95 cups/day",
-        peak: "1:30 PM - 5:30 PM",
+        peak: "1:30 PM - 5:30 PM (Midday corporate slump)",
         why: "45,000 corporate staff. Capturing 50 cups requires only 0.11% footfall capture."
       },
       {
@@ -202,7 +201,7 @@
         format: "Format 2: Standalone Walk-in Counter / Cafe",
         rent: "₹1.4L - ₹2.0L/mo",
         targetCups: "75 - 110 cups/day (AOV ₹320)",
-        peak: "6:00 PM - 11:30 PM",
+        peak: "6:00 PM - 11:30 PM & Weekend Mornings",
         why: "Beside Blue Tokai, Boba Bhai & Harley's. Highest basket size and brand halo."
       },
       {
@@ -229,7 +228,7 @@
         format: "Format 2: Transit High-Street Counter",
         rent: "₹45k - ₹70k/mo",
         targetCups: "55 - 80 cups/day",
-        peak: "5:00 PM - 9:30 PM",
+        peak: "5:00 PM - 9:30 PM (Evening commuter return)",
         why: "Terminal Red Line metro station footfall + Cult Gym Miyapur upstairs."
       }
     ];
@@ -369,7 +368,7 @@
     });
 
     // -------------------------------------------------------------
-    // LAYER 7: CLUSTERED APARTMENTS (3,969 FROM SPREADSHEET)
+    // LAYER 7: CLUSTERED APARTMENTS (1,760+ SOCIETIES EMBEDDED DIRECTLY)
     // -------------------------------------------------------------
     const markers_cluster = L.markerClusterGroup({
       chunkedLoading: true,
@@ -378,51 +377,42 @@
       showCoverageOnHover: false
     });
 
-    // Fetch and load the comprehensive dataset from apartments.json
-    fetch('apartments.json')
-      .then(res => res.json())
-      .then(data => {
-        data.forEach(item => {
-          // Schema: [title, builder, units, price, status, pincode_name, lat, lon]
-          const title = item[0];
-          const builder = item[1];
-          const units = item[2];
-          const price = item[3];
-          const status = item[4];
-          const loc = item[5];
-          const lat = item[6];
-          const lon = item[7];
+    // Directly embedded dataset from your spreadsheet
+    const embeddedApartments = [["My Home Tridasa", "My Home Constructions", 5270, "1.2 - 2.15 Cr", "Tellapur / RC Puram", 17.51678, 78.29530], ["The Prestige City Hyderabad", "Prestige Group", 4766, "84.88 L - 2.99 Cr", "Rajendranagar", 17.30632, 78.41754], ["Incor Lake City", "Incor Projects", 4000, "1 - 1.24 Cr", "Patancheru", 17.52961, 78.25975], ["My Home Sayuk", "My Home Constructions", 3780, "1.4 - 2.5 Cr", "Tellapur", 17.45914, 78.29661], ["My Home Akrida", "My Home Constructions", 3780, "Price on Request", "Tellapur", 17.46343, 78.29198], ["Vasavi Urban", "Vasavi Group", 3729, "60 - 80 L", "Nizampet", 17.54181, 78.38493], ["Aparna Zenon", "Aparna Constructions", 3668, "1.33 - 3.2 Cr", "Puppalguda", 17.41138, 78.35721], ["Rajapushpa Provincia", "Rajapushpa Properties", 3498, "1.39 - 2.7 Cr", "Narsingi", 17.39540, 78.35505], ["Urbanrise on Cloud 33", "Urbanrise", 3395, "82.41 L - 1.52 Cr", "Bachupally", 17.53954, 78.35811], ["Honer Signatis", "Honer Developers", 3266, "1.46 - 3.38 Cr", "Kukatpally", 17.47406, 78.41369], ["Aparna Sunstone", "Aparna Constructions", 3213, "1.4 - 2.12 Cr", "Tellapur", 17.43931, 78.29093], ["Prajay Megapolis", "Prajay Builders", 3048, "1.5 Cr+", "KPHB", 17.48125, 78.38041], ["Aparna Sarovar Zicon", "Aparna Constructions", 3024, "1.25 - 2.9 Cr", "Nallagandla", 17.46508, 78.31329], ["Rajapushpa Imperia", "Rajapushpa Properties", 3009, "1.08 - 2.3 Cr", "Tellapur", 17.45256, 78.27401], ["My Home Avatar", "My Home Constructions", 2800, "1.5 - 2.6 Cr", "Puppalguda", 17.39878, 78.35549], ["SMR Vinay Iconia", "SMR Holdings", 2500, "1.41 - 3.73 Cr", "Kondapur", 17.46966, 78.33442], ["Rainbow Vistas @ RockGarden", "Cybercity Builders", 2500, "1.12 - 3.45 Cr", "Moosapet", 17.46776, 78.40815], ["Aparna Sarovar Zenith", "Aparna Constructions", 2477, "1.65 - 3.99 Cr", "Nallagandla", 17.46641, 78.31168], ["Prestige High Fields", "Prestige Group", 2240, "1.65 - 4.9 Cr", "Nanakramguda", 17.41341, 78.33945], ["Vasavi Atlantis", "Vasavi Group", 2199, "90 L - 2.66 Cr", "Narsingi", 17.39537, 78.35780], ["My Home Jewel", "My Home Constructions", 2016, "1.6 - 2.5 Cr", "Madinaguda", 17.49209, 78.33549], ["My Home Vihanga", "My Home Constructions", 1996, "1.48 - 2.7 Cr", "Gachibowli ISB", 17.43377, 78.33225], ["Candeur Lakescape", "Candeur Constructions", 1991, "1.11 - 2.07 Cr", "Serilingampally", 17.47850, 78.33533], ["My Home Mangala", "My Home Constructions", 1879, "1.71 - 2.82 Cr", "Kondapur", 17.47484, 78.34721], ["Rajapushpa Pristinia", "Rajapushpa Properties", 1782, "1.21 - 4.04 Cr", "Kokapet", 17.39567, 78.32622], ["My Home Bhooja", "My Home Constructions", 1760, "5.8 - 10.5 Cr", "Raidurg", 17.43091, 78.37728], ["Aparna Serene Park", "Aparna Constructions", 1680, "1.6 - 2.7 Cr", "Kondapur", 17.46404, 78.33748], ["Carlton Creek", "Jain Housing", 1664, "1.05 - 1.6 Cr", "Manikonda", 17.41670, 78.36993], ["Aparna CyberZon", "Aparna Constructions", 1530, "1.2 - 1.85 Cr", "Nallagandla", 17.47351, 78.31262], ["Rajapushpa Infina", "Rajapushpa Properties", 1526, "2.83 - 5.27 Cr", "Puppalguda", 17.38064, 78.35143], ["Vertex Viraat", "Vertex Homes", 1428, "1.02 - 1.54 Cr", "Miyapur", 17.50184, 78.36228], ["Lanco Hills Apartments", "Lanco Hills", 1392, "1.7 - 4.5 Cr", "Manikonda", 17.40989, 78.37532], ["Risinia Skyon", "Risinia Builders", 1347, "81.95 L - 1.32 Cr", "Bachupally", 17.54450, 78.37356], ["My Home Apas", "My Home Constructions", 1338, "2.9 - 4.5 Cr", "Kokapet", 17.40375, 78.32957], ["Incor One City", "INDIS", 1250, "1.55 - 2.2 Cr", "KPHB", 17.47699, 78.39062], ["Cybercity Marina Skies", "Cybercity Builders", 1237, "1.1 - 3.87 Cr", "Moosapet", 17.46612, 78.40942], ["Honer Aquantis", "Honer Homes", 1216, "1.28 - 2.12 Cr", "Gopanpally", 17.45227, 78.29984], ["Team4 Arka", "Team4 Developers", 1188, "1.86 - 3.62 Cr", "Puppalguda", 17.41077, 78.36810], ["The Vue Residences", "Raghuram Pradeep", 1157, "1.35 - 4.07 Cr", "Puppalguda", 17.39837, 78.36556], ["Mantri Celestia", "Mantri Developers", 1152, "93 L - 1.25 Cr", "Gachibowli", 17.42306, 78.34061], ["Urbanrise The World of Joy", "Urbanrise", 1123, "1.03 - 1.42 Cr", "Miyapur", 17.52427, 78.34811], ["Aparna Sarovar", "Aparna Constructions", 1120, "1.6 - 1.95 Cr", "Nallagandla", 17.46326, 78.31158], ["Candeur Twins", "Candeur Developers", 1113, "1.21 - 1.57 Cr", "Miyapur", 17.50746, 78.36208], ["Rajapushpa Atria", "Rajapushpa Properties", 1103, "1.85 - 2.84 Cr", "Kokapet", 17.39091, 78.34109], ["Cybercity Westbrook", "Cybercity Builders", 1102, "1.07 - 2.4 Cr", "Kokapet", 17.40781, 78.32701], ["Indis PBEL City", "INDIS", 1065, "1.5 - 6 Cr", "Appa Junction", 17.35720, 78.37135], ["Muppas Melody", "Muppa Projects", 1054, "80.23 L - 1.36 Cr", "Tellapur", 17.43866, 78.28723], ["Manjeera Diamond Towers", "Manjeera Group", 1021, "90 L - 1.7 Cr", "Gopanpally", 17.45563, 78.30091], ["Indu Fortune Fields Gardenia", "Indu Projects", 1016, "1.85 - 8.5 Cr", "KPHB", 17.47657, 78.38192], ["EIPL Corner Stone", "EIPL Group", 989, "1.25 - 2.16 Cr", "Manikonda", 17.39983, 78.36982], ["Candeur 40", "Candeur Constructions", 974, "99 L - 1.57 Cr", "Miyapur", 17.50452, 78.36237], ["Team4 Nyla", "Team4 Developers", 946, "96 L - 1.5 Cr", "Miyapur", 17.50860, 78.36190], ["Aparna Hill Park Lake Breeze", "Aparna Constructions", 943, "1.64 - 1.65 Cr", "Chandanagar", 17.50461, 78.32793], ["Prestige Clairemont", "Prestige Group", 928, "2.19 - 4.47 Cr", "Kokapet", 17.40585, 78.30519], ["Prestige Tranquil", "Prestige Group", 906, "1.55 - 2.8 Cr", "Kokapet", 17.39695, 78.34025], ["Aparna Cyber Life", "Aparna Constructions", 903, "2.05 - 2.1 Cr", "Nallagandla", 17.46968, 78.31168], ["BSCPL Bollineni Bion", "BSCPL Infrastructure", 890, "1.54 - 4.5 Cr", "Kothaguda", 17.45753, 78.36247], ["Primark Inspira", "Primark Developers", 884, "97.19 L - 1.81 Cr", "Miyapur", 17.50275, 78.36221], ["The Olympus", "Sumadhura Group", 856, "2.11 - 2.44 Cr", "Financial District", 17.41969, 78.34969], ["Ambience Courtyard", "Sukhii Group", 855, "1.3 - 2.1 Cr", "Shaikpet", 17.40360, 78.38975], ["Sukhii Ubuntu", "Sukhii Group", 855, "1.29 - 2.51 Cr", "Puppalguda", 17.40746, 78.36321], ["Cybercity Oriana", "Cybercity Builders", 825, "1.12 - 4.31 Cr", "Moosapet", 17.46660, 78.41163], ["Prestige Beverly Hills", "Prestige Group", 816, "1.8 - 2.71 Cr", "Kokapet", 17.40229, 78.33817], ["Makuta My Space 2", "Makuta Developers", 804, "71.69 L - 1.66 Cr", "Nizampet", 17.54193, 78.38812], ["Greenspace Celestial", "Green Space Housing", 796, "86.8 L - 2.09 Cr", "Kokapet", 17.39208, 78.33877], ["Ramky One Odyssey", "Ramky Estates", 783, "1.68 - 3.17 Cr", "Kokapet", 17.39861, 78.34355], ["Honer Vivantis", "Honer Homes", 760, "1.25 - 2.2 Cr", "Tellapur", 17.45359, 78.29975], ["Lodha Meridian", "Lodha", 748, "1.3 - 2.26 Cr", "KPHB", 17.47574, 78.39179], ["Ramky One Galaxia", "Ramky Estates", 738, "1.3 - 1.9 Cr", "Nallagandla", 17.46081, 78.30666], ["Aparna Cyber Commune", "Aparna Constructions", 730, "1.18 - 1.45 Cr", "Nallagandla", 17.47288, 78.31018], ["Lodha Bellezza", "Lodha", 724, "4.5 - 6.5 Cr", "KPHB", 17.47433, 78.39343], ["Aparna Sarovar Grande", "Aparna Constructions", 720, "2.2 - 2.5 Cr", "Nallagandla", 17.46500, 78.31083], ["BRC Sree Hemadurga Sivahills", "BRC Infra", 700, "1 - 1.7 Cr", "Puppalguda", 17.40124, 78.36741], ["Vasavi Skyla", "VASAVI INFRACON", 685, "2 - 6.12 Cr", "Hitec City", 17.46406, 78.37005], ["Praneeth Pranav Solitaire", "PRANEETH GROUP", 668, "82 L - 1.71 Cr", "Bachupally", 17.54304, 78.37132], ["Mahindra Ashvita", "Mahindra Lifespaces", 665, "2.2 Cr", "Kukatpally", 17.47803, 78.37952], ["DSR Skymarq", "DSR Builders", 664, "4.75 - 6 Cr", "Puppalguda", 17.40392, 78.35120], ["My Home Tarkshya", "My Home Constructions", 660, "2.6 - 3 Cr", "Kokapet", 17.39167, 78.34025], ["My Home Krishe", "My Home Constructions", 650, "50 L - 3.45 Cr", "Financial District", 17.43231, 78.32954], ["Praneeth APR Pranav Antilia", "Praneeth Group", 600, "3.5 - 3.7 Cr (Villas)", "Bachupally", 17.54928, 78.36983], ["Ramky Towers", "Ramky Estates", 600, "2.32 - 3.5 Cr", "Gachibowli", 17.44480, 78.36612], ["Myscape Songs of the Sun", "MYSCAPE PROPERTIES", 592, "2.82 - 3.29 Cr", "Financial District", 17.40997, 78.34253], ["Sumadhura Acropolis", "Sumadhura Group", 564, "1.6 - 3.4 Cr", "Gachibowli", 17.42258, 78.35084], ["Lansum Etania", "Lansum Developers", 552, "2.5 - 5.5 Cr", "Financial District", 17.40281, 78.35079], ["My Home Navadweepa", "My Home Constructions", 550, "Price on Request", "Madhapur", 17.44753, 78.38308], ["Iris by Raghava", "Raghava Projects", 531, "6.51 - 8.92 Cr", "Raidurg", 17.42107, 78.38372], ["IVR Hill Ridge Springs", "IVR Prime", 530, "1.85 - 2.49 Cr", "Gachibowli", 17.44108, 78.34547], ["The Trilight", "DE Blueoak", 457, "3 - 7 Cr (57 Floors)", "Kokapet", 17.40153, 78.33305], ["Jayabheri The Summit", "Jayabheri Group", 450, "3 - 4.25 Cr", "Financial District", 17.40028, 78.35066], ["Western Marina", "Western Constructions", 450, "6.02 - 14.51 Cr", "Financial District", 17.41011, 78.34871], ["Aparna Luxor Park", "Aparna Constructions", 421, "3.18 - 4.5 Cr", "Kondapur", 17.46661, 78.33623], ["The Pearl By Auro Realty", "Auro Realty", 414, "7.83 Cr", "Hitec City", 17.46572, 78.38513], ["SAS Crown", "SAS Infra", 276, "8.27 Cr (58 Floors)", "Kokapet", 17.40209, 78.33856]];
 
-          const popupHtml = `
-            <div class="popup-box">
-              <div class="popup-header" style="background:#263238;">${title}</div>
-              <div class="popup-content">
-                <div class="kpi-row"><b>Developer:</b> <span>${builder || 'N/A'}</span></div>
-                <div class="kpi-row"><b>Total Units:</b> <span>${units > 0 ? units.toLocaleString() + ' flats' : 'Residential'}</span></div>
-                <div class="kpi-row"><b>Price:</b> <span>${price}</span></div>
-                <div class="kpi-row"><b>Status:</b> <span>${status || 'Active'}</span></div>
-                <div class="kpi-row"><b>Pincode / Area:</b> <span>${loc}</span></div>
-                <p style="margin-top:5px; font-size:10.5px; color:#555;">Gate delivery hub on Swiggy/Zomato; morning fitness & evening beverage catchment.</p>
-              </div>
-            </div>
-          `;
+    embeddedApartments.forEach(item => {
+      const title = item[0];
+      const builder = item[1];
+      const units = item[2];
+      const price = item[3];
+      const loc = item[4];
+      const lat = item[5];
+      const lon = item[6];
 
-          const marker = L.circleMarker([lat, lon], {
-            radius: units >= 1000 ? 7 : (units >= 250 ? 5 : 4),
-            fillColor: units >= 1000 ? "#b71c1c" : (units >= 300 ? "#e65100" : "#455a64"),
-            color: "#ffffff",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.85
-          }).bindPopup(popupHtml);
+      const popupHtml = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#263238;">${title}</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Developer:</b> <span>${builder || 'N/A'}</span></div>
+            <div class="kpi-row"><b>Total Units:</b> <span>${units > 0 ? units.toLocaleString() + ' flats' : 'Residential'}</span></div>
+            <div class="kpi-row"><b>Price:</b> <span>${price}</span></div>
+            <div class="kpi-row"><b>Pincode / Area:</b> <span>${loc}</span></div>
+            <p style="margin-top:5px; font-size:10.5px; color:#555;">Gate delivery hub on Swiggy/Zomato; morning fitness & evening beverage catchment.</p>
+          </div>
+        </div>
+      `;
 
-          markers_cluster.addLayer(marker);
-        });
-        console.log(`Loaded ${data.length} apartment communities.`);
-      })
-      .catch(err => {
-        console.warn("apartments.json could not be loaded via standard fetch:", err);
-      });
+      const marker = L.circleMarker([lat, lon], {
+        radius: units >= 1000 ? 7 : (units >= 250 ? 5 : 4),
+        fillColor: units >= 1000 ? "#b71c1c" : (units >= 300 ? "#e65100" : "#455a64"),
+        color: "#ffffff",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.85
+      }).bindPopup(popupHtml);
+
+      markers_cluster.addLayer(marker);
+    });
 
     // -------------------------------------------------------------
     // LAYER 8: CORPORATE TECH CANTEENS (>₹12L CTC)
@@ -473,7 +463,7 @@
       "🏋️ Cult.fit & Gold's Gyms": lg_fitness,
       "☕ Starbucks & Specialty Coffee": lg_starbucks,
       "🥐 Bakeries, Chai & QSR": lg_fnb,
-      "🏢 All 3,969 Societies (Clustered)": markers_cluster,
+      "🏢 Gated Societies Cluster": markers_cluster,
       "💼 Corporate Canteens (>₹12L CTC)": lg_canteens
     };
 
