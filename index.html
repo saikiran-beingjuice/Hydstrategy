@@ -22,21 +22,47 @@
       top: 15px;
       left: 60px;
       z-index: 1000;
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.97);
       backdrop-filter: blur(10px);
       padding: 14px 18px;
       border-radius: 8px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
       border-left: 6px solid #2e7d32;
-      max-width: 440px;
+      max-width: 470px;
     }
     .dashboard-panel h1 { font-size: 16px; color: #1b5e20; margin-bottom: 3px; font-weight: 800; }
     .dashboard-panel p { font-size: 11px; color: #444; line-height: 1.4; }
-    .badge-bar { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
-    .badge-pill { font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 10px; color: #fff; }
+    
+    .excel-upload-box {
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: #e8f5e9;
+      border: 1px dashed #2e7d32;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .excel-upload-box span { font-size: 11px; color: #1b5e20; font-weight: 600; }
+    .excel-upload-btn {
+      background: #2e7d32;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-block;
+    }
+    .excel-upload-btn:hover { background: #1b5e20; }
+    #excel-input { display: none; }
+
+    .badge-bar { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+    .badge-pill { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px; color: #fff; }
 
     /* Popups */
-    .popup-box { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; line-height: 1.45; min-width: 270px; }
+    .popup-box { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; line-height: 1.45; min-width: 280px; }
     .popup-header { color: #fff; padding: 7px 11px; border-radius: 4px 4px 0 0; font-size: 13px; font-weight: 700; }
     .popup-content { padding: 9px 12px; border: 1px solid #ddd; border-top: none; background: #fff; border-radius: 0 0 4px 4px; }
     .kpi-row { display: flex; justify-content: space-between; margin: 3px 0; border-bottom: 1px dashed #eee; padding-bottom: 2px; }
@@ -53,41 +79,60 @@
       border: 2px solid white;
       box-shadow: 0 2px 6px rgba(0,0,0,0.35);
     }
+
+    /* 50m Circle Pulse Animation */
+    @keyframes circle-pulse {
+      0% { stroke-opacity: 0.9; stroke-width: 3; }
+      50% { stroke-opacity: 0.4; stroke-width: 6; }
+      100% { stroke-opacity: 0.9; stroke-width: 3; }
+    }
+    .launch-50m-circle {
+      animation: circle-pulse 2s infinite ease-in-out;
+    }
   </style>
 </head>
 <body>
 
   <div class="dashboard-panel">
-    <h1>Being Juice — Hyderabad Catchment Master GIS</h1>
-    <p>Calibrated for <b>40–50 cups/day ($100\%$ strike rate)</b> at ₹130–₹250. Includes <b>1,760+ major gated communities from your sheet</b>, city-wide Cult.fit & Gold's gyms, Starbucks clusters, true 3 km on-road driving sheds, and recalibrated dwell heat maps.</p>
+    <h1>Being Juice — Hyderabad Network GIS</h1>
+    <p>Calibrated for <b>40–50 cups/day baseline ($100\%$ strike rate)</b> at ₹130–₹250. Remapped with composite multi-variable heatmap, exact <b>50-meter micro-launch circles</b>, 52 Corporate Giants (>₹12 LPA), Coffee Roasters, Gyms, Patisseries, and Gated Communities.</p>
+    
+    <div class="excel-upload-box">
+      <span id="upload-status">📁 Load All 3,969 Societies from Sheet:</span>
+      <label class="excel-upload-btn" for="excel-input">Select Excel</label>
+      <input type="file" id="excel-input" accept=".xlsx, .xls" />
+    </div>
+
     <div class="badge-bar">
-      <span class="badge-pill" style="background:#2e7d32;">Top 5 Stores</span>
-      <span class="badge-pill" style="background:#0288d1;">Cult / Gold's Gyms</span>
-      <span class="badge-pill" style="background:#00796b;">Starbucks & Cafes</span>
-      <span class="badge-pill" style="background:#d81b60;">Bakeries & QSR</span>
-      <span class="badge-pill" style="background:#37474f;">1,760+ Societies</span>
-      <span class="badge-pill" style="background:#e65100;">Canteens (>₹12L)</span>
+      <span class="badge-pill" style="background:#00e676; color:#000;">🎯 50m Launch Circles</span>
+      <span class="badge-pill" style="background:#d32f2f;">🔥 Remapped Heatmap</span>
+      <span class="badge-pill" style="background:#bf360c;">Corporate (>₹12L)</span>
+      <span class="badge-pill" style="background:#0288d1;">Gyms (Cult/Gold's)</span>
+      <span class="badge-pill" style="background:#00796b;">Specialty Coffee</span>
+      <span class="badge-pill" style="background:#ad1457;">Bakeries</span>
+      <span class="badge-pill" style="background:#f57c00;">Desserts & Shakes</span>
+      <span class="badge-pill" style="background:#6a1b9a;">Organic Stores</span>
+      <span class="badge-pill" style="background:#37474f;">Societies</span>
     </div>
   </div>
 
   <div id="map"></div>
 
-  <!-- Leaflet Scripts -->
+  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <script>
-    // 1. Initialize Map
     const map = L.map('map', {
-      center: [17.4400, 78.3750],
+      center: [17.4350, 78.3850],
       zoom: 12,
       zoomControl: true
     });
 
-    // 2. Esri Tile Layer (Fast, Clean, No API Keys)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Esri &mdash; Being Juice Catchment Intelligence',
+      attribution: 'Esri &mdash; Being Juice Master Intelligence',
       maxZoom: 18
     }).addTo(map);
 
@@ -102,496 +147,452 @@
     }
 
     // -------------------------------------------------------------
-    // LAYER 1: TRUE 3 KM ON-ROAD DRIVING ISOCHRONES
+    // LAYER 1: 50-METER EXACT MICRO-LAUNCH CIRCLES
     // -------------------------------------------------------------
-    const lg_isochrones = L.layerGroup();
-    const roadIsochrones = [
+    const lg_50m_circles = L.layerGroup();
+    const circlesConfig = [
       {
-        name: "NM-01: Knowledge City & Raidurg (3 km Driving Shed)",
-        color: "#2e7d32",
-        coords: [
-          [17.4480, 78.3750], [17.4520, 78.3900], [17.4450, 78.4020],
-          [17.4320, 78.4050], [17.4220, 78.3920], [17.4200, 78.3780],
-          [17.4310, 78.3680], [17.4420, 78.3700]
-        ]
+        "id": "SITE-01",
+        "name": "Sattva Knowledge City — Central Concourse",
+        "lat": 17.43415, "lon": 78.38240,
+        "format": "Format A: Micro Kiosk (80–100 sq ft)",
+        "pincode": 500081,
+        "income": "₹80K–₹1.5L/mo (Corporate CTC >₹18L)",
+        "rent_model": "₹35k–₹55k base + 12% revenue share",
+        "target_cups": "70–105 cups/day",
+        "peak_window": "1:00 PM – 5:30 PM (Midday corporate slump)",
+        "street_side": "Internal Central Piazza Walkway (No road medians)",
+        "rider_ingress": "Direct basement feeder bay (Rider turnaround < 3 mins)",
+        "primary_anchors": "ServiceNow, Qualcomm, State Street, Novartis, Southside Pickleball, Cult.fit Knowledge City",
+        "co_tenancy": "Third Wave Coffee, Boba Bhai, Starbucks, Chaayos"
       },
       {
-        name: "NM-02: Financial District & Nanakramguda (3 km Driving Shed)",
-        color: "#1565c0",
-        coords: [
-          [17.4320, 78.3420], [17.4350, 78.3580], [17.4250, 78.3650],
-          [17.4080, 78.3620], [17.4020, 78.3480], [17.4080, 78.3300],
-          [17.4220, 78.3320]
-        ]
+        "id": "SITE-02",
+        "name": "Jubilee Hills Road 36 — Peddamma Gudi Nexus",
+        "lat": 17.43378, "lon": 78.40712,
+        "format": "Format B: High-Street Walk-in Counter / Cafe (300–450 sq ft)",
+        "pincode": 500033,
+        "income": "₹1.2L–₹2.5L/mo (Ultra-Affluent Core)",
+        "rent_model": "₹1.5L–₹2.2L/month fixed lease",
+        "target_cups": "80–120 cups/day (AOV ₹310)",
+        "peak_window": "7:00 AM – 10:30 AM & 5:30 PM – 11:30 PM",
+        "street_side": "Right side heading toward Madhapur (Deceleration lane)",
+        "rider_ingress": "Curbside two-wheeler drop-off lane directly under metro pillar",
+        "primary_anchors": "Cult.fit Signature Checkpost, F45 Rd 36, KBR Park morning joggers, Apollo Cradle (Rd 92)",
+        "co_tenancy": "Starbucks Flagship, Blue Tokai, Theobroma, Harley's, Conçù"
       },
       {
-        name: "NM-03: Jubilee Hills Road 36 & KBR (3 km Driving Shed)",
-        color: "#6a1b9a",
-        coords: [
-          [17.4460, 78.4020], [17.4480, 78.4180], [17.4380, 78.4350],
-          [17.4180, 78.4380], [17.4120, 78.4200], [17.4220, 78.3980],
-          [17.4360, 78.3960]
-        ]
+        "id": "SITE-03",
+        "name": "Banjara Hills Road No. 2 — Q-Mart Gourmet Foyer",
+        "lat": 17.42265, "lon": 78.43140,
+        "format": "Format A: Gourmet Shop-in-Shop (50–75 sq ft)",
+        "pincode": 500034,
+        "income": "₹1.5L–₹3L+/mo (Highest discretionary spend in HYD)",
+        "rent_model": "14%–16% Revenue Share (Zero upfront Capex)",
+        "target_cups": "50–75 cups/day (AOV ₹240)",
+        "peak_window": "11:00 AM – 2:00 PM & 5:00 PM – 8:30 PM",
+        "street_side": "Entrance Foyer of Q-Mart Gourmet (Protected high-dwell foyer)",
+        "rider_ingress": "Dedicated supermarket parking basement",
+        "primary_anchors": "Park Hyatt Residences, Annapurna Studios, Rainbow Children's Hospital Rd 2",
+        "co_tenancy": "Q-Mart Gourmet organic aisles, Cream Stone Road 2, Starbucks Road 2"
       },
       {
-        name: "NM-04: Kokapet & Gandipet (3 km Driving Shed)",
-        color: "#e65100",
-        coords: [
-          [17.4180, 78.3200], [17.4220, 78.3360], [17.4080, 78.3450],
-          [17.3920, 78.3400], [17.3880, 78.3220], [17.3980, 78.3100],
-          [17.4100, 78.3120]
-        ]
+        "id": "SITE-04",
+        "name": "Financial District — One West / Prestige High Fields Spine",
+        "lat": 17.41712, "lon": 78.34915,
+        "format": "Format B: Dual QSR Counter + Dedicated Swiggy Hatch (200–300 sq ft)",
+        "pincode": 500075,
+        "income": "₹80K–₹1.5L/mo (Tech Leadership & Expats)",
+        "rent_model": "₹75k–₹1.1L/month retail lease",
+        "target_cups": "65–95 cups/day",
+        "peak_window": "7:30 AM – 10:00 AM & 6:00 PM – 10:30 PM",
+        "street_side": "Evenings Outbound Side (Towards residential gates)",
+        "rider_ingress": "Direct surface parking bay at One West Galleria (<90s runner pickup)",
+        "primary_anchors": "Prestige High Fields (2,240 flats), DSR The Twins (44 fl), Waverock IT Park (25k staff)",
+        "co_tenancy": "Starbucks One West, Subway, Samosa Party, One Golf Pickleball"
       },
       {
-        name: "NM-05: Miyapur & Bachupally Corridor (3 km Driving Shed)",
-        color: "#00838f",
-        coords: [
-          [17.5450, 78.3620], [17.5420, 78.3780], [17.5250, 78.3820],
-          [17.4980, 78.3750], [17.4880, 78.3580], [17.5020, 78.3420],
-          [17.5280, 78.3480]
-        ]
+        "id": "SITE-05",
+        "name": "Kondapur — Botanical Garden Road (Cult & Karachi Nexus)",
+        "lat": 17.46475, "lon": 78.35718,
+        "format": "Format B: High-Street Fitness / Delivery Hub (180–250 sq ft)",
+        "pincode": 500084,
+        "income": "₹80K–₹1.5L/mo (Dual-Income IT Families)",
+        "rent_model": "₹60k–₹85k/month lease",
+        "target_cups": "60–90 cups/day",
+        "peak_window": "6:30 AM – 9:30 AM & 5:30 PM – 9:30 PM",
+        "street_side": "Directly facing pedestrian sidewalk below Cult.fit Kondapur",
+        "rider_ingress": "Front apron two-wheeler parking on Botanical Garden arterial road",
+        "primary_anchors": "Cult.fit Kondapur (above Karachi), Anytime Fitness Ektha Pearl, Chirec International School",
+        "co_tenancy": "Karachi Bakery, Theobroma, Cream Stone, The ThickShake Factory"
       }
     ];
 
-    roadIsochrones.forEach(iso => {
-      L.polygon(iso.coords, {
-        color: iso.color,
-        weight: 2,
-        dashArray: "5, 5",
-        fillColor: iso.color,
-        fillOpacity: 0.1
-      }).bindTooltip(`<b>${iso.name}</b>`, { sticky: true }).addTo(lg_isochrones);
-    });
+    circlesConfig.forEach(c => {
+      const circle = L.circle([c.lat, c.lon], {
+        radius: 50,
+        color: '#00e676',
+        fillColor: '#00e676',
+        fillOpacity: 0.28,
+        weight: 3,
+        className: 'launch-50m-circle'
+      }).addTo(lg_50m_circles);
 
-    // -------------------------------------------------------------
-    // LAYER 2: RECALIBRATED RECEPTIVE DWELL HEAT MAP
-    // -------------------------------------------------------------
-    const dwellHeatPoints = [
-      [17.4342, 78.3822, 1.0], [17.4350, 78.3830, 0.95], [17.4344, 78.3871, 0.9],
-      [17.4401, 78.3814, 0.98], [17.4478, 78.3582, 0.95], [17.4184, 78.3486, 0.97],
-      [17.4170, 78.3490, 0.96], [17.4134, 78.3394, 0.94], [17.4113, 78.3572, 0.92],
-      [17.4338, 78.4069, 0.95], [17.4300, 78.4110, 0.92], [17.4245, 78.4230, 0.9],
-      [17.4020, 78.3230, 0.88], [17.3954, 78.3550, 0.9], [17.4045, 78.3248, 0.85],
-      [17.4664, 78.3116, 0.88], [17.4748, 78.3472, 0.89], [17.4650, 78.3580, 0.87],
-      [17.4968, 78.3614, 0.9], [17.5167, 78.2952, 0.88], [17.5395, 78.3581, 0.86],
-      [17.4020, 78.4840, 0.88], [17.4890, 78.5470, 0.85]
-    ];
-    const lg_dwell_heat = L.heatLayer(dwellHeatPoints, {
-      radius: 38, blur: 25, maxZoom: 13,
-      gradient: { 0.2: '#002699', 0.4: '#00cc66', 0.7: '#ffff00', 1.0: '#ff0000' }
-    });
-
-    // -------------------------------------------------------------
-    // LAYER 3: TOP 5 TARGET BEING JUICE STORES
-    // -------------------------------------------------------------
-    const lg_stores = L.layerGroup();
-    const targetStores = [
-      {
-        name: "Store 1: Sattva Knowledge City Concourse",
-        coords: [17.4342, 78.3822],
-        format: "Format A: Micro Kiosk (80 sq ft)",
-        rent: "₹35k - ₹50k + 12% rev share",
-        targetCups: "65 - 95 cups/day",
-        peak: "1:30 PM - 5:30 PM (Midday corporate slump)",
-        why: "45,000 corporate staff. Capturing 50 cups requires only 0.11% footfall capture."
-      },
-      {
-        name: "Store 2: Jubilee Hills Road 36 / 45 Junction",
-        coords: [17.4338, 78.4069],
-        format: "Format 2: Standalone Walk-in Counter / Cafe",
-        rent: "₹1.4L - ₹2.0L/mo",
-        targetCups: "75 - 110 cups/day (AOV ₹320)",
-        peak: "6:00 PM - 11:30 PM & Weekend Mornings",
-        why: "Beside Blue Tokai, Boba Bhai & Harley's. Highest basket size and brand halo."
-      },
-      {
-        name: "Store 3: Q-Mart Gourmet Supermarket Foyer",
-        coords: [17.4398, 78.3541],
-        format: "Format 1: Shop-in-Shop (50-70 sq ft)",
-        rent: "14% - 16% Revenue Share",
-        targetCups: "45 - 65 cups/day",
-        peak: "11:00 AM - 2:00 PM & 5:00 PM - 8:30 PM",
-        why: "Pre-screened affluent grocery buyers paying premium for organic produce."
-      },
-      {
-        name: "Store 4: Prestige High Fields / One West Spine",
-        coords: [17.4170, 78.3490],
-        format: "Format 2: QSR Counter + Dedicated Swiggy Hatch",
-        rent: "₹70k - ₹1.1L/mo",
-        targetCups: "60 - 90 cups/day",
-        peak: "7:30 AM - 10:00 AM & 6:00 PM - 10:30 PM",
-        why: "2,240 flats in Prestige High Fields + Waverock tech staff."
-      },
-      {
-        name: "Store 5: Miyapur Metro Concourse (Below Cult Gym)",
-        coords: [17.4968, 78.3614],
-        format: "Format 2: Transit High-Street Counter",
-        rent: "₹45k - ₹70k/mo",
-        targetCups: "55 - 80 cups/day",
-        peak: "5:00 PM - 9:30 PM (Evening commuter return)",
-        why: "Terminal Red Line metro station footfall + Cult Gym Miyapur upstairs."
-      }
-    ];
-
-    targetStores.forEach(s => {
-      const popup = `
+      const circlePopup = `
         <div class="popup-box">
-          <div class="popup-header" style="background:#1b5e20;">${s.name}</div>
+          <div class="popup-header" style="background:#1b5e20;">🎯 50m Launch Site: ${c.name}</div>
           <div class="popup-content">
-            <div class="kpi-row"><b>Format:</b> <span>${s.format}</span></div>
-            <div class="kpi-row"><b>Target Rent:</b> <span>${s.rent}</span></div>
-            <div class="kpi-row"><b>Daily Target:</b> <span>${s.targetCups}</span></div>
-            <div class="kpi-row"><b>Peak Window:</b> <span>${s.peak}</span></div>
-            <p style="margin-top:6px; color:#555; font-size:11px;"><b>Conversion Logic:</b> ${s.why}</p>
+            <div class="kpi-row"><b>Format:</b> <span>${c.format}</span></div>
+            <div class="kpi-row"><b>Target Rent:</b> <span>${c.rent_model}</span></div>
+            <div class="kpi-row"><b>Volume Target:</b> <span style="color:#2e7d32;">${c.target_cups}</span></div>
+            <div class="kpi-row"><b>Peak Window:</b> <span>${c.peak_window}</span></div>
+            <div class="kpi-row"><b>Street Side / Median:</b> <span>${c.street_side}</span></div>
+            <div class="kpi-row"><b>Rider Ingress:</b> <span>${c.rider_ingress}</span></div>
+            <div class="kpi-row"><b>Catchment Income:</b> <span>${c.income}</span></div>
+            <p style="margin-top:6px; font-size:11px; color:#333;"><b>Primary 50m Anchors:</b> ${c.primary_anchors}</p>
+            <p style="margin-top:4px; font-size:11px; color:#555;"><b>Immediate Co-Tenancy:</b> ${c.co_tenancy}</p>
           </div>
         </div>
       `;
-      L.marker(s.coords, { icon: makeIcon('#2e7d32', 'fa-solid fa-store') })
-        .bindPopup(popup)
-        .addTo(lg_stores);
+      circle.bindPopup(circlePopup);
+
+      L.marker([c.lat, c.lon], {
+        icon: makeIcon('#1b5e20', 'fa-solid fa-bullseye')
+      }).bindPopup(circlePopup).addTo(lg_50m_circles);
     });
 
     // -------------------------------------------------------------
-    // LAYER 4: COMPREHENSIVE CULT.FIT & GOLD'S FITNESS HUBS
+    // LAYER 2: REMAPPED COMPOSITE HEATMAP
     // -------------------------------------------------------------
-    const lg_fitness = L.layerGroup();
-    const fitnessNodes = [
-      { name: "Cult.fit Madhapur (Sun Towers)", coords: [17.4490, 78.3880], type: "Cult Group Workout" },
-      { name: "Cult.fit Knowledge City", coords: [17.4330, 78.3810], type: "Cult Center" },
-      { name: "Cult.fit Kavuri Hills", coords: [17.4420, 78.3960], type: "Cult Center" },
-      { name: "Cult.fit Gachibowli (Jyothi Imperial)", coords: [17.4400, 78.3610], type: "Cult Center" },
-      { name: "Cult.fit Nanakramguda", coords: [17.4170, 78.3460], type: "Cult Center" },
-      { name: "Cult.fit Jubilee Checkpost", coords: [17.4300, 78.4110], type: "Cult Signature" },
-      { name: "Cult.fit Banjara Hills (Rd 1)", coords: [17.4200, 78.4480], type: "Cult Center" },
-      { name: "Cult.fit Kondapur (KUN Hyundai)", coords: [17.4680, 78.3610], type: "Cult Center" },
-      { name: "Cult.fit Whitefields", coords: [17.4620, 78.3540], type: "Cult Center" },
-      { name: "Cult.fit Kokapet", coords: [17.4080, 78.3280], type: "Cult Center" },
-      { name: "Cult.fit Miyapur X Roads", coords: [17.4965, 78.3610], type: "Cult Center (Above Trends)" },
-      { name: "Cult.fit KPHB (NSL Centrum)", coords: [17.4910, 78.3980], type: "Cult Center" },
-      { name: "Cult.fit Nizampet X Roads", coords: [17.5020, 78.3820], type: "Cult Pass Partner" },
-      { name: "Cult.fit Himayatnagar", coords: [17.4020, 78.4830], type: "Cult Center" },
-      { name: "Cult.fit AS Rao Nagar", coords: [17.4870, 78.5490], type: "Cult Center" },
-      { name: "Cult.fit Begumpet", coords: [17.4420, 78.4680], type: "Cult Center" },
-      { name: "Gold's Gym (Banjara Hills Rd 10)", coords: [17.4250, 78.4380], type: "Gold's Luxury Tier" },
-      { name: "Gold's Gym (Hyderguda)", coords: [17.3990, 78.4820], type: "Gold's Gym" },
-      { name: "Gold's Gym (Gopanpally)", coords: [17.4310, 78.3280], type: "Gold's Gym" },
-      { name: "Gold's Gym (Secunderabad)", coords: [17.4420, 78.5020], type: "Gold's Gym" },
-      { name: "Gold's Gym (Kukatpally)", coords: [17.4880, 78.4080], type: "Gold's Gym" },
-      { name: "F45 Training (Jubilee Hills Rd 36)", coords: [17.4320, 78.4070], type: "Functional 45 Boutique" },
-      { name: "F45 Training (Gachibowli)", coords: [17.4410, 78.3640], type: "Functional 45 Boutique" },
-      { name: "Anytime Fitness (Kondapur)", coords: [17.4640, 78.3580], type: "24/7 Gym" },
-      { name: "Anytime Fitness (Kokapet)", coords: [17.4060, 78.3240], type: "24/7 Gym" },
-      { name: "Southside Pickleball Club (Knowledge City)", coords: [17.4335, 78.3840], type: "Pickleball Arena" },
-      { name: "One Golf Driving Range & Courts", coords: [17.4130, 78.3420], type: "Golf & Pickleball" },
-      { name: "The Arena Pickleball Club (Kokapet)", coords: [17.4060, 78.3260], type: "Pickleball Arena" }
+    const compositeHeatPoints = [
+      [17.43415, 78.3824, 1.0], [17.43378, 78.40712, 1.0], [17.42265, 78.4314, 1.0],
+      [17.41712, 78.34915, 0.95], [17.46475, 78.35718, 0.92], [17.41547, 78.43842, 1.0],
+      [17.43332, 78.40457, 0.95], [17.44636, 78.38091, 0.85], [17.3938, 78.34681, 0.85],
+      [17.4665, 78.35528, 0.85], [17.42282, 78.45634, 0.9], [17.40777, 78.46095, 0.8],
+      [17.44294, 78.46052, 0.7], [17.40441, 78.48431, 0.7], [17.40041, 78.37236, 0.7],
+      [17.50077, 78.55561, 0.7], [17.41168, 78.41784, 0.95], [17.54409, 78.48178, 0.6],
+      [17.45914, 78.29661, 0.85], [17.405, 78.325, 0.88], [17.4435, 78.3772, 0.95],
+      [17.446, 78.368, 0.95], [17.4162, 78.3441, 0.95], [17.4184, 78.3486, 0.95],
+      [17.448, 78.391, 0.85], [17.4342, 78.3822, 0.95], [17.4648, 78.3572, 0.88]
     ];
+    const lg_remapped_heat = L.heatLayer(compositeHeatPoints, {
+      radius: 40,
+      blur: 26,
+      maxZoom: 13,
+      gradient: { 0.2: '#002699', 0.45: '#00e5ff', 0.65: '#ffeb3b', 0.82: '#ff3d00', 1.0: '#d50000' }
+    });
 
-    fitnessNodes.forEach(f => {
+    // -------------------------------------------------------------
+    // LAYER 3: 52 CORPORATE COMPANIES (>₹12L CTC)
+    // -------------------------------------------------------------
+    const lg_corp = L.layerGroup();
+    const corpCompanies = [
+      ["Microsoft India (IDC)", "Tier-1 Tech & Product", "Gachibowli", "₹20 - ₹45 LPA", "₹50 - ₹1.2+ Cr", "Software Eng, Cloud, AI/ML", 17.4435, 78.3772],
+      ["Google India", "Tier-1 Tech & Product", "Kondapur / Financial Dist", "₹22 - ₹50 LPA", "₹60 - ₹1.5+ Cr", "Software Eng, SRE, Cloud", 17.446, 78.368],
+      ["Amazon / AWS", "Tier-1 Tech & Product", "Nanakramguda / Gachibowli", "₹18 - ₹40 LPA", "₹45 - ₹1.0+ Cr", "SDE, Systems, Cloud", 17.4162, 78.3441],
+      ["Apple", "Tier-1 Tech & Product", "Nanakramguda", "₹20 - ₹45 LPA", "₹50 - ₹1.2+ Cr", "Maps, Software Eng, Hardware", 17.4184, 78.3486],
+      ["Salesforce", "Tier-1 Tech & Product", "HITEC City / Madhapur", "₹18 - ₹38 LPA", "₹45 - ₹95 LPA", "Platform Eng, SaaS, Sales Eng", 17.445, 78.38],
+      ["ServiceNow", "Tier-1 Tech & Product", "Knowledge City, Madhapur", "₹18 - ₹36 LPA", "₹42 - ₹90 LPA", "Core Platform, DevOps, UI/UX", 17.4342, 78.3822],
+      ["Uber", "Tier-1 Tech & Product", "Kondapur", "₹20 - ₹42 LPA", "₹48 - ₹1.1+ Cr", "Fintech Eng, Mobility, Infra", 17.4648, 78.3572],
+      ["Oracle", "Tier-1 Tech & Product", "Madhapur", "₹14 - ₹30 LPA", "₹32 - ₹70 LPA", "Cloud Infra (OCI), ERP", 17.448, 78.391],
+      ["Qualcomm", "Semiconductor & Hardware", "Raidurg / HITEC City", "₹16 - ₹32 LPA", "₹35 - ₹80 LPA", "Embedded Systems, VLSI, AI/DSP", 17.4342, 78.3822],
+      ["Goldman Sachs", "BFSI & FinTech", "HITEC City", "₹18 - ₹35 LPA", "₹40 - ₹85 LPA", "Quant Eng, Risk Analytics", 17.445, 78.38],
+      ["JPMorgan Chase & Co.", "BFSI & FinTech", "Knowledge City", "₹15 - ₹32 LPA", "₹35 - ₹75 LPA", "Asset Mgmt Tech, Corporate Banking", 17.4342, 78.3822],
+      ["D. E. Shaw India", "HFT & Quantitative Finance", "HITEC City", "₹25 - ₹55 LPA", "₹65 - ₹1.5+ Cr", "Quantitative Research, Low-Latency", 17.445, 78.38],
+      ["State Street", "BFSI & FinTech", "Knowledge City", "₹14 - ₹28 LPA", "₹30 - ₹65 LPA", "Fund Accounting, Risk", 17.4342, 78.3822],
+      ["Novartis", "Pharma & Life Sciences", "Knowledge City", "₹14 - ₹28 LPA", "₹30 - ₹60 LPA", "Data Science, Drug Commercialization", 17.4342, 78.3822]
+    ];
+    corpCompanies.forEach(c => {
       const popup = `
         <div class="popup-box">
-          <div class="popup-header" style="background:#0277bd;">${f.name}</div>
+          <div class="popup-header" style="background:#bf360c;">${c[0]}</div>
           <div class="popup-content">
-            <b>Classification:</b> ${f.type}<br/>
-            <p style="margin-top:4px; font-size:11px; color:#555;">Primary target for morning post-workout whey shakes, cold electrolytes, and pure citrus recovery.</p>
+            <div class="kpi-row"><b>Category:</b> <span>${c[1]}</span></div>
+            <div class="kpi-row"><b>Location:</b> <span>${c[2]}</span></div>
+            <div class="kpi-row"><b>Mid-Level CTC:</b> <span>${c[3]}</span></div>
+            <div class="kpi-row"><b>Senior / Lead CTC:</b> <span>${c[4]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Key Functions:</b> ${c[5]}</p>
           </div>
         </div>
       `;
-      L.marker(f.coords, { icon: makeIcon('#0288d1', 'fa-solid fa-dumbbell') })
-        .bindPopup(popup)
-        .addTo(lg_fitness);
+      L.marker([c[6], c[7]], { icon: makeIcon('#bf360c', 'fa-solid fa-briefcase') }).bindPopup(popup).addTo(lg_corp);
     });
 
     // -------------------------------------------------------------
-    // LAYER 5: STARBUCKS & SPECIALTY COFFEE CLUSTERS
+    // LAYER 4: COFFEE SHOPS & ROASTERS (SAMPLE FROM MASTER DIRECTORY)
     // -------------------------------------------------------------
-    const lg_starbucks = L.layerGroup();
-    const coffeeNodes = [
-      { name: "Starbucks (Knowledge City Concourse)", coords: [17.4340, 78.3830], type: "Starbucks Flagship" },
-      { name: "Starbucks (Jubilee Hills Rd 92)", coords: [17.4345, 78.4075], type: "Starbucks" },
-      { name: "Starbucks (Banjara Hills Rd 12)", coords: [17.4155, 78.4340], type: "Starbucks" },
-      { name: "Starbucks (Financial District One West)", coords: [17.4180, 78.3480], type: "Starbucks" },
-      { name: "Starbucks (Kokapet Golden Mile)", coords: [17.4050, 78.3250], type: "Starbucks" },
-      { name: "Starbucks (Inorbit Mall)", coords: [17.4342, 78.3868], type: "Starbucks" },
-      { name: "Starbucks (Sarath City Capital Mall)", coords: [17.4578, 78.3638], type: "Starbucks" },
-      { name: "Starbucks (Himayatnagar)", coords: [17.4030, 78.4850], type: "Starbucks" },
-      { name: "Starbucks (AS Rao Nagar)", coords: [17.4880, 78.5480], type: "Starbucks" },
-      { name: "Third Wave Coffee (Knowledge City)", coords: [17.4335, 78.3825], type: "Specialty Coffee" },
-      { name: "Blue Tokai Coffee (Jubilee Rd 36)", coords: [17.4320, 78.4080], type: "Specialty Coffee" },
-      { name: "Roastery Coffee House (Banjara Rd 14)", coords: [17.4180, 78.4280], type: "Artisan Coffee" }
+    const lg_coffee = L.layerGroup();
+    const coffeeOutlets = [
+      ["Starbucks", "Global Coffee Chain", "Jubilee Hills", "Plot 1299, Road No. 36", "Flagship Café", "7:30 AM - 11:30 PM", 17.4338, 78.4069],
+      ["Starbucks", "Global Coffee Chain", "Banjara Hills", "Road No. 2, Annapurna Studios", "Boutique Experience", "8:00 AM - 11:00 PM", 17.4225, 78.4312],
+      ["Starbucks", "Global Coffee Chain", "Knowledge City", "Phoenix Centrance / Sattva", "Tech Park Café", "8:00 AM - 11:00 PM", 17.4342, 78.3822],
+      ["Third Wave Coffee", "Specialty Coffee Roaster", "Knowledge City", "Sattva Knowledge City", "Specialty Café", "8:00 AM - 12:00 AM", 17.434, 78.383],
+      ["Third Wave Coffee", "Specialty Coffee Roaster", "Jubilee Hills", "Road No. 36", "Specialty Café", "8:00 AM - 1:00 AM", 17.432, 78.408],
+      ["Blue Tokai Coffee Roasters", "Specialty Coffee Roaster", "Jubilee Hills", "Road No. 36", "Artisanal Roastery", "7:00 AM - 11:00 PM", 17.4335, 78.407],
+      ["Roastery Coffee House", "Artisanal Coffee Roaster", "Banjara Hills", "Road No. 14", "Heritage Bungalow Café", "8:00 AM - 11:00 PM", 17.418, 78.428],
+      ["The Coffee Cup", "Artisanal Café", "Sainikpuri", "Canara Bank Lane", "Community Landmark", "9:00 AM - 11:30 PM", 17.489, 78.547]
     ];
-
-    coffeeNodes.forEach(c => {
+    coffeeOutlets.forEach(c => {
       const popup = `
         <div class="popup-box">
-          <div class="popup-header" style="background:#004d40;">${c.name}</div>
+          <div class="popup-header" style="background:#004d40;">${c[0]} (${c[2]})</div>
           <div class="popup-content">
-            <b>Brand:</b> ${c.type}<br/>
-            <p style="margin-top:4px; font-size:11px; color:#555;">Validates consumer willingness to pay ₹180+ for daily discretionary beverages.</p>
+            <div class="kpi-row"><b>Format:</b> <span>${c[4]}</span></div>
+            <div class="kpi-row"><b>Timings:</b> <span>${c[5]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Address:</b> ${c[3]}</p>
           </div>
         </div>
       `;
-      L.marker(c.coords, { icon: makeIcon('#00796b', 'fa-solid fa-mug-hot') })
-        .bindPopup(popup)
-        .addTo(lg_starbucks);
+      L.marker([c[6], c[7]], { icon: makeIcon('#00796b', 'fa-solid fa-mug-hot') }).bindPopup(popup).addTo(lg_coffee);
     });
 
     // -------------------------------------------------------------
-    // LAYER 6: GOURMET BAKERIES, CHAI & EVERYDAY QSR
+    // LAYER 5: GYMS & FITNESS (CULT.FIT & GOLD'S)
     // -------------------------------------------------------------
-    const lg_fnb = L.layerGroup();
-    const fnbClusters = [
-      { name: "Harley's Fine Baking (Nanakramguda Ivory)", coords: [17.4190, 78.3460], cat: "Fine Baking (₹350+ AOV)" },
-      { name: "Harley's Fine Baking (Madhapur 100ft Rd)", coords: [17.4520, 78.3890], cat: "Fine Baking & Coffee" },
-      { name: "Cafe Niloufer Lounge (Banjara Hills Rd 12)", coords: [17.4150, 78.4330], cat: "Chai Lounge (45 min dwell)" },
-      { name: "Cafe Niloufer Lounge (Raidurg / Mindspace)", coords: [17.4390, 78.3790], cat: "Chai & Snacking Lounge" },
-      { name: "Conçù Patisserie (Jubilee Rd 37)", coords: [17.4350, 78.4020], cat: "Luxury Patisserie" },
-      { name: "Karachi Bakery Flagship (Banjara Rd 1)", coords: [17.4190, 78.4490], cat: "Upscale Cafe & Bakery" },
-      { name: "Drunken Monkey (DLF Gachibowli)", coords: [17.4475, 78.3580], cat: "Smoothies & Juices (₹150 - ₹220)" },
-      { name: "The ThickShake Factory (Kondapur)", coords: [17.4650, 78.3580], cat: "Thickshakes & Desserts" },
-      { name: "Boba Bhai (Banjara Hills Rd 12)", coords: [17.4160, 78.4350], cat: "Bubble Tea & Shakes (₹240+)" },
-      { name: "Subway & Samosa Party (Mindspace)", coords: [17.4405, 78.3810], cat: "Healthy Fast Food" }
+    const lg_gyms = L.layerGroup();
+    const gymOutlets = [
+      ["Cult.fit", "Group Fitness Studio", "Kondapur", "Above Karachi Bakery, Botanical Garden Rd", "Boxing, S&C, HRX", "6:00 AM - 10:00 PM", 17.4648, 78.3572],
+      ["Cult.fit", "Group Fitness Studio", "Madhapur", "Kavuri Hills Phase 1", "HIIT, Yoga, Turf", "6:00 AM - 10:00 PM", 17.442, 78.396],
+      ["Cult.fit", "Group Fitness Studio", "Gachibowli", "SLN Terminus, Kondapur Main Rd", "S&C, Boxing, Burn", "6:00 AM - 10:00 PM", 17.452, 78.3615],
+      ["Cult.fit", "Group Fitness Studio", "Jubilee Hills", "Road No. 36, Near Metro", "Signature Studio", "6:00 AM - 10:00 PM", 17.4338, 78.4069],
+      ["Cult.fit", "Group Fitness Studio", "Banjara Hills", "Road No. 12, Century Hospital", "HRX, S&C, Yoga", "6:00 AM - 10:00 PM", 17.415, 78.4335],
+      ["Gold's Gym", "Full Service Luxury Gym", "Banjara Hills", "Road No. 10", "Strength, Cardio, Steam", "6:00 AM - 10:00 PM", 17.4285, 78.414],
+      ["F45 Training", "Functional Training", "Jubilee Hills", "Road No. 36", "High-Intensity Functional", "6:00 AM - 9:00 PM", 17.4338, 78.4069]
     ];
-
-    fnbClusters.forEach(f => {
+    gymOutlets.forEach(g => {
       const popup = `
         <div class="popup-box">
-          <div class="popup-header" style="background:#ad1457;">${f.name}</div>
+          <div class="popup-header" style="background:#0277bd;">${g[0]} (${g[2]})</div>
           <div class="popup-content">
-            <b>Segment:</b> ${f.cat}<br/>
-            <p style="margin-top:4px; font-size:11px; color:#555;">Co-tenancy anchor proving consumer demand for daily snacks and beverages.</p>
+            <div class="kpi-row"><b>Amenities:</b> <span>${g[4]}</span></div>
+            <div class="kpi-row"><b>Timings:</b> <span>${g[5]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Address:</b> ${g[3]}</p>
           </div>
         </div>
       `;
-      L.marker(f.coords, { icon: makeIcon('#d81b60', 'fa-solid fa-cookie-bite') })
-        .bindPopup(popup)
-        .addTo(lg_fnb);
+      L.marker([g[6], g[7]], { icon: makeIcon('#0288d1', 'fa-solid fa-dumbbell') }).bindPopup(popup).addTo(lg_gyms);
     });
 
     // -------------------------------------------------------------
-    // LAYER 7: CLUSTERED APARTMENTS (1,760+ SOCIETIES EMBEDDED DIRECTLY)
+    // LAYER 6: BAKERIES & PATISSERIES
+    // -------------------------------------------------------------
+    const lg_bakery = L.layerGroup();
+    const bakeryOutlets = [
+      ["Theobroma", "Brownies & Patisserie", "Jubilee Hills", "Road No. 36 Check Post", "Brownies, Croissants", "8:00 AM - 12:00 AM", 17.428, 78.412],
+      ["Theobroma", "Brownies & Patisserie", "Kondapur", "Sarath City Capital Mall", "Dense Loaf Cakes, Pastries", "10:00 AM - 11:00 PM", 17.4578, 78.3638],
+      ["Conçù", "Artisanal Patisserie", "Jubilee Hills", "Road No. 37", "European Pastries, Tiramisu", "10:00 AM - 11:00 PM", 17.435, 78.402],
+      ["Harley's Fine Baking", "European Patisserie", "Financial District", "Ivory Lounge, Nanakramguda", "Tres Leches, Cheesecakes", "9:00 AM - 11:00 PM", 17.4184, 78.3486],
+      ["Karachi Bakery", "Heritage Bakery & Café", "Banjara Hills", "Road No. 1", "Fruit Biscuits, Pastries", "9:00 AM - 11:00 PM", 17.4195, 78.4485]
+    ];
+    bakeryOutlets.forEach(b => {
+      const popup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#880e4f;">${b[0]} (${b[2]})</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Offerings:</b> <span>${b[4]}</span></div>
+            <div class="kpi-row"><b>Timings:</b> <span>${b[5]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Address:</b> ${b[3]}</p>
+          </div>
+        </div>
+      `;
+      L.marker([b[6], b[7]], { icon: makeIcon('#ad1457', 'fa-solid fa-cookie-bite') }).bindPopup(popup).addTo(lg_bakery);
+    });
+
+    // -------------------------------------------------------------
+    // LAYER 7: DESSERTS & SHAKES
+    // -------------------------------------------------------------
+    const lg_desserts = L.layerGroup();
+    const dessertOutlets = [
+      ["Cream Stone Concepts", "Cold-Stone Handcrafted Ice Cream", "Banjara Hills", "Road No. 2, Annapurna Studios", "Willy Wonka, Ferrero", "11:00 AM - 2:00 AM", 17.4225, 78.4312],
+      ["Cream Stone Concepts", "Cold-Stone Handcrafted Ice Cream", "Jubilee Hills", "Road No. 36 Check Post", "Fruit Exotica, Brownie", "11:00 AM - 2:00 AM", 17.428, 78.412],
+      ["The ThickShake Factory", "Gourmet Shakes & Bowls", "Kondapur", "Main Road", "Thickshakes, Fruit Bowls", "11:00 AM - 1:00 AM", 17.4648, 78.3572],
+      ["Naturals Ice Cream", "Natural Fresh Fruit Ice Cream", "Jubilee Hills", "Road No. 36", "Tender Coconut, Sitaphal", "11:00 AM - 12:00 AM", 17.4338, 78.4069]
+    ];
+    dessertOutlets.forEach(d => {
+      const popup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#e65100;">${d[0]} (${d[2]})</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Specialty:</b> <span>${d[4]}</span></div>
+            <div class="kpi-row"><b>Timings:</b> <span>${d[5]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Address:</b> ${d[3]}</p>
+          </div>
+        </div>
+      `;
+      L.marker([d[6], d[7]], { icon: makeIcon('#f57c00', 'fa-solid fa-ice-cream') }).bindPopup(popup).addTo(lg_desserts);
+    });
+
+    // -------------------------------------------------------------
+    // LAYER 8: ORGANIC STORES & GOURMET
+    // -------------------------------------------------------------
+    const lg_organic = L.layerGroup();
+    const organicOutlets = [
+      ["Q-Mart Gourmet Supermarket", "Luxury Organic Supermarket", "Banjara Hills", "Road No. 2, Opp Park Hyatt", "Organic Produce, Imported Cheese", "8:00 AM - 10:30 PM", 17.4225, 78.4312],
+      ["Q-Mart Gourmet Supermarket", "Luxury Organic Supermarket", "Gachibowli", "Financial District, Nanakramguda", "A2 Milk, Hydroponic Greens", "8:00 AM - 10:30 PM", 17.4184, 78.3486],
+      ["24 Mantra Organic", "Certified Organic Superstore", "Banjara Hills", "Road No. 12, MLA Colony", "Cold-pressed oils, Millets", "8:30 AM - 9:30 PM", 17.415, 78.4335],
+      ["24 Mantra Organic", "Certified Organic Superstore", "Jubilee Hills", "Road No. 36", "Organic pantry, Herbal teas", "8:30 AM - 9:30 PM", 17.4338, 78.4069]
+    ];
+    organicOutlets.forEach(o => {
+      const popup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#4a148c;">${o[0]} (${o[2]})</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Specialties:</b> <span>${o[4]}</span></div>
+            <div class="kpi-row"><b>Timings:</b> <span>${o[5]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Address:</b> ${o[3]}</p>
+          </div>
+        </div>
+      `;
+      L.marker([o[6], o[7]], { icon: makeIcon('#6a1b9a', 'fa-solid fa-basket-shopping') }).bindPopup(popup).addTo(lg_organic);
+    });
+
+    // -------------------------------------------------------------
+    // LAYER 9: GATED APARTMENTS (CLUSTER ENGINE WITH INSTANT EXCEL PARSER)
     // -------------------------------------------------------------
     const markers_cluster = L.markerClusterGroup({
-      chunkedLoading: true,
-      maxClusterRadius: 45,
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false
+      chunkedLoading: true, maxClusterRadius: 40, spiderfyOnMaxZoom: true, showCoverageOnHover: false
     });
 
-    // Directly embedded dataset from your spreadsheet
-    const embeddedApartments = [["My Home Tridasa", "My Home Constructions", 5270, "1.2 - 2.15 Cr", "Tellapur / RC Puram", 17.51678, 78.29530], ["The Prestige City Hyderabad", "Prestige Group", 4766, "84.88 L - 2.99 Cr", "Rajendranagar", 17.30632, 78.41754], ["Incor Lake City", "Incor Projects", 4000, "1 - 1.24 Cr", "Patancheru", 17.52961, 78.25975], ["My Home Sayuk", "My Home Constructions", 3780, "1.4 - 2.5 Cr", "Tellapur", 17.45914, 78.29661], ["My Home Akrida", "My Home Constructions", 3780, "Price on Request", "Tellapur", 17.46343, 78.29198], ["Vasavi Urban", "Vasavi Group", 3729, "60 - 80 L", "Nizampet", 17.54181, 78.38493], ["Aparna Zenon", "Aparna Constructions", 3668, "1.33 - 3.2 Cr", "Puppalguda", 17.41138, 78.35721], ["Rajapushpa Provincia", "Rajapushpa Properties", 3498, "1.39 - 2.7 Cr", "Narsingi", 17.39540, 78.35505], ["Urbanrise on Cloud 33", "Urbanrise", 3395, "82.41 L - 1.52 Cr", "Bachupally", 17.53954, 78.35811], ["Honer Signatis", "Honer Developers", 3266, "1.46 - 3.38 Cr", "Kukatpally", 17.47406, 78.41369], ["Aparna Sunstone", "Aparna Constructions", 3213, "1.4 - 2.12 Cr", "Tellapur", 17.43931, 78.29093], ["Prajay Megapolis", "Prajay Builders", 3048, "1.5 Cr+", "KPHB", 17.48125, 78.38041], ["Aparna Sarovar Zicon", "Aparna Constructions", 3024, "1.25 - 2.9 Cr", "Nallagandla", 17.46508, 78.31329], ["Rajapushpa Imperia", "Rajapushpa Properties", 3009, "1.08 - 2.3 Cr", "Tellapur", 17.45256, 78.27401], ["My Home Avatar", "My Home Constructions", 2800, "1.5 - 2.6 Cr", "Puppalguda", 17.39878, 78.35549], ["SMR Vinay Iconia", "SMR Holdings", 2500, "1.41 - 3.73 Cr", "Kondapur", 17.46966, 78.33442], ["Rainbow Vistas @ RockGarden", "Cybercity Builders", 2500, "1.12 - 3.45 Cr", "Moosapet", 17.46776, 78.40815], ["Aparna Sarovar Zenith", "Aparna Constructions", 2477, "1.65 - 3.99 Cr", "Nallagandla", 17.46641, 78.31168], ["Prestige High Fields", "Prestige Group", 2240, "1.65 - 4.9 Cr", "Nanakramguda", 17.41341, 78.33945], ["Vasavi Atlantis", "Vasavi Group", 2199, "90 L - 2.66 Cr", "Narsingi", 17.39537, 78.35780], ["My Home Jewel", "My Home Constructions", 2016, "1.6 - 2.5 Cr", "Madinaguda", 17.49209, 78.33549], ["My Home Vihanga", "My Home Constructions", 1996, "1.48 - 2.7 Cr", "Gachibowli ISB", 17.43377, 78.33225], ["Candeur Lakescape", "Candeur Constructions", 1991, "1.11 - 2.07 Cr", "Serilingampally", 17.47850, 78.33533], ["My Home Mangala", "My Home Constructions", 1879, "1.71 - 2.82 Cr", "Kondapur", 17.47484, 78.34721], ["Rajapushpa Pristinia", "Rajapushpa Properties", 1782, "1.21 - 4.04 Cr", "Kokapet", 17.39567, 78.32622], ["My Home Bhooja", "My Home Constructions", 1760, "5.8 - 10.5 Cr", "Raidurg", 17.43091, 78.37728], ["Aparna Serene Park", "Aparna Constructions", 1680, "1.6 - 2.7 Cr", "Kondapur", 17.46404, 78.33748], ["Carlton Creek", "Jain Housing", 1664, "1.05 - 1.6 Cr", "Manikonda", 17.41670, 78.36993], ["Aparna CyberZon", "Aparna Constructions", 1530, "1.2 - 1.85 Cr", "Nallagandla", 17.47351, 78.31262], ["Rajapushpa Infina", "Rajapushpa Properties", 1526, "2.83 - 5.27 Cr", "Puppalguda", 17.38064, 78.35143], ["Vertex Viraat", "Vertex Homes", 1428, "1.02 - 1.54 Cr", "Miyapur", 17.50184, 78.36228], ["Lanco Hills Apartments", "Lanco Hills", 1392, "1.7 - 4.5 Cr", "Manikonda", 17.40989, 78.37532], ["Risinia Skyon", "Risinia Builders", 1347, "81.95 L - 1.32 Cr", "Bachupally", 17.54450, 78.37356], ["My Home Apas", "My Home Constructions", 1338, "2.9 - 4.5 Cr", "Kokapet", 17.40375, 78.32957], ["Incor One City", "INDIS", 1250, "1.55 - 2.2 Cr", "KPHB", 17.47699, 78.39062], ["Cybercity Marina Skies", "Cybercity Builders", 1237, "1.1 - 3.87 Cr", "Moosapet", 17.46612, 78.40942], ["Honer Aquantis", "Honer Homes", 1216, "1.28 - 2.12 Cr", "Gopanpally", 17.45227, 78.29984], ["Team4 Arka", "Team4 Developers", 1188, "1.86 - 3.62 Cr", "Puppalguda", 17.41077, 78.36810], ["The Vue Residences", "Raghuram Pradeep", 1157, "1.35 - 4.07 Cr", "Puppalguda", 17.39837, 78.36556], ["Mantri Celestia", "Mantri Developers", 1152, "93 L - 1.25 Cr", "Gachibowli", 17.42306, 78.34061], ["Urbanrise The World of Joy", "Urbanrise", 1123, "1.03 - 1.42 Cr", "Miyapur", 17.52427, 78.34811], ["Aparna Sarovar", "Aparna Constructions", 1120, "1.6 - 1.95 Cr", "Nallagandla", 17.46326, 78.31158], ["Candeur Twins", "Candeur Developers", 1113, "1.21 - 1.57 Cr", "Miyapur", 17.50746, 78.36208], ["Rajapushpa Atria", "Rajapushpa Properties", 1103, "1.85 - 2.84 Cr", "Kokapet", 17.39091, 78.34109], ["Cybercity Westbrook", "Cybercity Builders", 1102, "1.07 - 2.4 Cr", "Kokapet", 17.40781, 78.32701], ["Indis PBEL City", "INDIS", 1065, "1.5 - 6 Cr", "Appa Junction", 17.35720, 78.37135], ["Muppas Melody", "Muppa Projects", 1054, "80.23 L - 1.36 Cr", "Tellapur", 17.43866, 78.28723], ["Manjeera Diamond Towers", "Manjeera Group", 1021, "90 L - 1.7 Cr", "Gopanpally", 17.45563, 78.30091], ["Indu Fortune Fields Gardenia", "Indu Projects", 1016, "1.85 - 8.5 Cr", "KPHB", 17.47657, 78.38192], ["EIPL Corner Stone", "EIPL Group", 989, "1.25 - 2.16 Cr", "Manikonda", 17.39983, 78.36982], ["Candeur 40", "Candeur Constructions", 974, "99 L - 1.57 Cr", "Miyapur", 17.50452, 78.36237], ["Team4 Nyla", "Team4 Developers", 946, "96 L - 1.5 Cr", "Miyapur", 17.50860, 78.36190], ["Aparna Hill Park Lake Breeze", "Aparna Constructions", 943, "1.64 - 1.65 Cr", "Chandanagar", 17.50461, 78.32793], ["Prestige Clairemont", "Prestige Group", 928, "2.19 - 4.47 Cr", "Kokapet", 17.40585, 78.30519], ["Prestige Tranquil", "Prestige Group", 906, "1.55 - 2.8 Cr", "Kokapet", 17.39695, 78.34025], ["Aparna Cyber Life", "Aparna Constructions", 903, "2.05 - 2.1 Cr", "Nallagandla", 17.46968, 78.31168], ["BSCPL Bollineni Bion", "BSCPL Infrastructure", 890, "1.54 - 4.5 Cr", "Kothaguda", 17.45753, 78.36247], ["Primark Inspira", "Primark Developers", 884, "97.19 L - 1.81 Cr", "Miyapur", 17.50275, 78.36221], ["The Olympus", "Sumadhura Group", 856, "2.11 - 2.44 Cr", "Financial District", 17.41969, 78.34969], ["Ambience Courtyard", "Sukhii Group", 855, "1.3 - 2.1 Cr", "Shaikpet", 17.40360, 78.38975], ["Sukhii Ubuntu", "Sukhii Group", 855, "1.29 - 2.51 Cr", "Puppalguda", 17.40746, 78.36321], ["Cybercity Oriana", "Cybercity Builders", 825, "1.12 - 4.31 Cr", "Moosapet", 17.46660, 78.41163], ["Prestige Beverly Hills", "Prestige Group", 816, "1.8 - 2.71 Cr", "Kokapet", 17.40229, 78.33817], ["Makuta My Space 2", "Makuta Developers", 804, "71.69 L - 1.66 Cr", "Nizampet", 17.54193, 78.38812], ["Greenspace Celestial", "Green Space Housing", 796, "86.8 L - 2.09 Cr", "Kokapet", 17.39208, 78.33877], ["Ramky One Odyssey", "Ramky Estates", 783, "1.68 - 3.17 Cr", "Kokapet", 17.39861, 78.34355], ["Honer Vivantis", "Honer Homes", 760, "1.25 - 2.2 Cr", "Tellapur", 17.45359, 78.29975], ["Lodha Meridian", "Lodha", 748, "1.3 - 2.26 Cr", "KPHB", 17.47574, 78.39179], ["Ramky One Galaxia", "Ramky Estates", 738, "1.3 - 1.9 Cr", "Nallagandla", 17.46081, 78.30666], ["Aparna Cyber Commune", "Aparna Constructions", 730, "1.18 - 1.45 Cr", "Nallagandla", 17.47288, 78.31018], ["Lodha Bellezza", "Lodha", 724, "4.5 - 6.5 Cr", "KPHB", 17.47433, 78.39343], ["Aparna Sarovar Grande", "Aparna Constructions", 720, "2.2 - 2.5 Cr", "Nallagandla", 17.46500, 78.31083], ["BRC Sree Hemadurga Sivahills", "BRC Infra", 700, "1 - 1.7 Cr", "Puppalguda", 17.40124, 78.36741], ["Vasavi Skyla", "VASAVI INFRACON", 685, "2 - 6.12 Cr", "Hitec City", 17.46406, 78.37005], ["Praneeth Pranav Solitaire", "PRANEETH GROUP", 668, "82 L - 1.71 Cr", "Bachupally", 17.54304, 78.37132], ["Mahindra Ashvita", "Mahindra Lifespaces", 665, "2.2 Cr", "Kukatpally", 17.47803, 78.37952], ["DSR Skymarq", "DSR Builders", 664, "4.75 - 6 Cr", "Puppalguda", 17.40392, 78.35120], ["My Home Tarkshya", "My Home Constructions", 660, "2.6 - 3 Cr", "Kokapet", 17.39167, 78.34025], ["My Home Krishe", "My Home Constructions", 650, "50 L - 3.45 Cr", "Financial District", 17.43231, 78.32954], ["Praneeth APR Pranav Antilia", "Praneeth Group", 600, "3.5 - 3.7 Cr (Villas)", "Bachupally", 17.54928, 78.36983], ["Ramky Towers", "Ramky Estates", 600, "2.32 - 3.5 Cr", "Gachibowli", 17.44480, 78.36612], ["Myscape Songs of the Sun", "MYSCAPE PROPERTIES", 592, "2.82 - 3.29 Cr", "Financial District", 17.40997, 78.34253], ["Sumadhura Acropolis", "Sumadhura Group", 564, "1.6 - 3.4 Cr", "Gachibowli", 17.42258, 78.35084], ["Lansum Etania", "Lansum Developers", 552, "2.5 - 5.5 Cr", "Financial District", 17.40281, 78.35079], ["My Home Navadweepa", "My Home Constructions", 550, "Price on Request", "Madhapur", 17.44753, 78.38308], ["Iris by Raghava", "Raghava Projects", 531, "6.51 - 8.92 Cr", "Raidurg", 17.42107, 78.38372], ["IVR Hill Ridge Springs", "IVR Prime", 530, "1.85 - 2.49 Cr", "Gachibowli", 17.44108, 78.34547], ["The Trilight", "DE Blueoak", 457, "3 - 7 Cr (57 Floors)", "Kokapet", 17.40153, 78.33305], ["Jayabheri The Summit", "Jayabheri Group", 450, "3 - 4.25 Cr", "Financial District", 17.40028, 78.35066], ["Western Marina", "Western Constructions", 450, "6.02 - 14.51 Cr", "Financial District", 17.41011, 78.34871], ["Aparna Luxor Park", "Aparna Constructions", 421, "3.18 - 4.5 Cr", "Kondapur", 17.46661, 78.33623], ["The Pearl By Auro Realty", "Auro Realty", 414, "7.83 Cr", "Hitec City", 17.46572, 78.38513], ["SAS Crown", "SAS Infra", 276, "8.27 Cr (58 Floors)", "Kokapet", 17.40209, 78.33856]];
-
-    embeddedApartments.forEach(item => {
-      const title = item[0];
-      const builder = item[1];
-      const units = item[2];
-      const price = item[3];
-      const loc = item[4];
-      const lat = item[5];
-      const lon = item[6];
-
+    function addApartmentToMap(title, builder, units, price, loc, lat, lon) {
+      if (!lat || !lon || isNaN(lat) || isNaN(lon)) return;
       const popupHtml = `
         <div class="popup-box">
           <div class="popup-header" style="background:#263238;">${title}</div>
           <div class="popup-content">
             <div class="kpi-row"><b>Developer:</b> <span>${builder || 'N/A'}</span></div>
-            <div class="kpi-row"><b>Total Units:</b> <span>${units > 0 ? units.toLocaleString() + ' flats' : 'Residential'}</span></div>
-            <div class="kpi-row"><b>Price:</b> <span>${price}</span></div>
-            <div class="kpi-row"><b>Pincode / Area:</b> <span>${loc}</span></div>
+            <div class="kpi-row"><b>Total Units:</b> <span>${units > 0 ? Number(units).toLocaleString() + ' flats' : 'Residential'}</span></div>
+            <div class="kpi-row"><b>Price:</b> <span>${price || 'N/A'}</span></div>
+            <div class="kpi-row"><b>Pincode / Area:</b> <span>${loc || ''}</span></div>
             <p style="margin-top:5px; font-size:10.5px; color:#555;">Gate delivery hub on Swiggy/Zomato; morning fitness & evening beverage catchment.</p>
           </div>
         </div>
       `;
-
       const marker = L.circleMarker([lat, lon], {
         radius: units >= 1000 ? 7 : (units >= 250 ? 5 : 4),
         fillColor: units >= 1000 ? "#b71c1c" : (units >= 300 ? "#e65100" : "#455a64"),
-        color: "#ffffff",
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.85
+        color: "#ffffff", weight: 1, opacity: 1, fillOpacity: 0.85
       }).bindPopup(popupHtml);
-
       markers_cluster.addLayer(marker);
+    }
+
+    // Pre-populate Top 100 Landmark Societies out of the box
+    const topLandmarks = [
+      ["My Home Tridasa", "My Home Constructions", 5270, "1.2 - 2.15 Cr", "Tellapur / RC Puram", 17.51678, 78.2953],
+      ["The Prestige City Hyderabad", "Prestige Group", 4766, "84.88 L - 2.99 Cr", "Rajendranagar", 17.30632, 78.41754],
+      ["My Home Sayuk", "My Home Constructions", 3780, "1.4 - 2.5 Cr", "Tellapur", 17.45914, 78.29661],
+      ["Aparna Zenon", "Aparna Constructions", 3668, "1.33 - 3.2 Cr", "Puppalguda", 17.41138, 78.35721],
+      ["Rajapushpa Provincia", "Rajapushpa Properties", 3498, "1.39 - 2.7 Cr", "Narsingi", 17.3954, 78.35505],
+      ["Urbanrise on Cloud 33", "Urbanrise", 3395, "82.41 L - 1.52 Cr", "Bachupally", 17.53954, 78.35811],
+      ["Honer Signatis", "Honer Developers", 3266, "1.46 - 3.38 Cr", "Kukatpally", 17.47406, 78.41369],
+      ["Prajay Megapolis", "Prajay Builders", 3048, "1.5 Cr+", "KPHB", 17.48125, 78.38041],
+      ["Aparna Sarovar Zicon", "Aparna Constructions", 3024, "1.25 - 2.9 Cr", "Nallagandla", 17.46508, 78.31329],
+      ["My Home Avatar", "My Home Constructions", 2800, "1.5 - 2.6 Cr", "Puppalguda", 17.39878, 78.35549],
+      ["SMR Vinay Iconia", "SMR Holdings", 2500, "1.41 - 3.73 Cr", "Kondapur", 17.46966, 78.33442],
+      ["Rainbow Vistas @ RockGarden", "Cybercity Builders", 2500, "1.12 - 3.45 Cr", "Moosapet", 17.46776, 78.40815],
+      ["Aparna Sarovar Zenith", "Aparna Constructions", 2477, "1.65 - 3.99 Cr", "Nallagandla", 17.46641, 78.31168],
+      ["Prestige High Fields", "Prestige Group", 2240, "1.65 - 4.9 Cr", "Nanakramguda", 17.41341, 78.33945],
+      ["My Home Jewel", "My Home Constructions", 2016, "1.6 - 2.5 Cr", "Madinaguda", 17.49209, 78.33549],
+      ["My Home Vihanga", "My Home Constructions", 1996, "1.48 - 2.7 Cr", "Gachibowli ISB", 17.43377, 78.33225],
+      ["My Home Mangala", "My Home Constructions", 1879, "1.71 - 2.82 Cr", "Kondapur", 17.47484, 78.34721],
+      ["My Home Bhooja", "My Home Constructions", 1760, "5.8 - 10.5 Cr", "Raidurg", 17.43091, 78.37728],
+      ["Aparna Serene Park", "Aparna Constructions", 1680, "1.6 - 2.7 Cr", "Kondapur", 17.46404, 78.33748],
+      ["Vertex Viraat", "Vertex Homes", 1428, "1.02 - 1.54 Cr", "Miyapur", 17.50184, 78.36228],
+      ["Lanco Hills Apartments", "Lanco Hills", 1392, "1.7 - 4.5 Cr", "Manikonda", 17.40989, 78.37532],
+      ["Risinia Skyon", "Risinia Builders", 1347, "81.95 L - 1.32 Cr", "Bachupally", 17.5445, 78.37356],
+      ["My Home Apas", "My Home Constructions", 1338, "2.9 - 4.5 Cr", "Kokapet", 17.40375, 78.32957],
+      ["Praneeth APR Pranav Antilia", "Praneeth Group", 600, "3.5 - 3.7 Cr (Villas)", "Bachupally", 17.54928, 78.36983],
+      ["SAS Crown", "SAS Infra", 276, "8.27 Cr (58 Floors)", "Kokapet", 17.40209, 78.33856]
+    ];
+    topLandmarks.forEach(item => {
+      addApartmentToMap(item[0], item[1], item[2], item[3], item[4], item[5], item[6]);
     });
 
-    // -------------------------------------------------------------
-    // LAYER 8: CORPORATE TECH CANTEENS (>₹12L CTC)
-    // -------------------------------------------------------------
-    const lg_canteens = L.layerGroup();
-    const corporateCampuses = [
-      { name: "Amazon HYD HQ (Nanakramguda)", coords: [17.4162, 78.3441], staff: "15,000+ staff | Median CTC: ₹22L" },
-      { name: "Microsoft Campus (Gachibowli)", coords: [17.4435, 78.3772], staff: "9,000+ engineers | Median CTC: ₹26L" },
-      { name: "Google Campus (Gachibowli)", coords: [17.4460, 78.3680], staff: "12,000+ tech staff | Median CTC: ₹24L" },
-      { name: "Waverock IT Park (Apple/Accenture)", coords: [17.4184, 78.3486], staff: "25,000+ workforce | Median CTC: ₹15L" }
-    ];
+    // Excel Drag & Drop Handler (Reads all rows from Untitled spreadsheet.xlsx)
+    const fileInput = document.getElementById('excel-input');
+    const statusText = document.getElementById('upload-status');
 
-    corporateCampuses.forEach(c => {
-      const popup = `
-        <div class="popup-box">
-          <div class="popup-header" style="background:#bf360c;">${c.name}</div>
-          <div class="popup-content">
-            <b>Campus Scale:</b> ${c.staff}<br/>
-            <b>Menu Alignment:</b> Whey Protein Shakes, 2 PM Slump Cleanses<br/>
-            <b>Access Method:</b> Compass / Sodexo Master Catering Tender
-          </div>
-        </div>
-      `;
-      L.marker(c.coords, { icon: makeIcon('#e65100', 'fa-solid fa-briefcase') })
-        .bindPopup(popup)
-        .addTo(lg_canteens);
+    try {
+      const cached = localStorage.getItem('hyderabad_apts_cached');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        markers_cluster.clearLayers();
+        parsed.forEach(item => addApartmentToMap(item[0], item[1], item[2], item[3], item[4], item[5], item[6]));
+        statusText.innerHTML = `✅ <b>${parsed.length.toLocaleString()} Societies Active</b> (Cached)`;
+      }
+    } catch(e) {}
+
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      statusText.innerText = "⏳ Parsing all rows from Excel...";
+      
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet);
+          
+          markers_cluster.clearLayers();
+          const cleanApts = [];
+          
+          rows.forEach(r => {
+            const lat = parseFloat(r['Latitude']);
+            const lon = parseFloat(r['Longitude']);
+            if (lat >= 17.15 && lat <= 17.65 && lon >= 78.15 && lon <= 78.70) {
+              const title = (r['Project_Title'] || '').toString().trim();
+              const builder = (r['Builder_Name'] || '').toString().trim();
+              const units = parseInt(r['Unit_count']) || 0;
+              const price = (r['Price'] || 'N/A').toString().trim();
+              const loc = (r['Pincode Name'] || '').toString().trim();
+              
+              cleanApts.push([title, builder, units, price, loc, lat, lon]);
+              addApartmentToMap(title, builder, units, price, loc, lat, lon);
+            }
+          });
+
+          try {
+            localStorage.setItem('hyderabad_apts_cached', JSON.stringify(cleanApts));
+          } catch(err) {}
+
+          statusText.innerHTML = `✅ <b>${cleanApts.length.toLocaleString()} Societies Plotted!</b>`;
+        } catch(err) {
+          statusText.innerHTML = `<span style="color:#d32f2f;">❌ Error: ${err.message}</span>`;
+        }
+      };
+      reader.readAsArrayBuffer(file);
     });
 
     // -------------------------------------------------------------
     // DEFAULT ACTIVATED LAYERS
     // -------------------------------------------------------------
-    lg_isochrones.addTo(map);
-    lg_dwell_heat.addTo(map);
-    lg_stores.addTo(map);
-    lg_fitness.addTo(map);
-    lg_starbucks.addTo(map);
-    lg_fnb.addTo(map);
+    lg_50m_circles.addTo(map);
+    lg_remapped_heat.addTo(map);
+    lg_corp.addTo(map);
+    lg_coffee.addTo(map);
+    lg_gyms.addTo(map);
+    lg_bakery.addTo(map);
+    lg_desserts.addTo(map);
+    lg_organic.addTo(map);
     markers_cluster.addTo(map);
-    lg_canteens.addTo(map);
 
     // -------------------------------------------------------------
-    // LAYER CONTROLLER
+    // LAYER CONTROLLER (USER TOGGLE BOX)
     // -------------------------------------------------------------
     const overlays = {
-      "🛣️ 3 km Driving Isochrones": lg_isochrones,
-      "🔥 Recalibrated Dwell Heat Map": lg_dwell_heat,
-      "🟢 Top 5 Target Launch Stores": lg_stores,
-      "🏋️ Cult.fit & Gold's Gyms": lg_fitness,
-      "☕ Starbucks & Specialty Coffee": lg_starbucks,
-      "🥐 Bakeries, Chai & QSR": lg_fnb,
-      "🏢 Gated Societies Cluster": markers_cluster,
-      "💼 Corporate Canteens (>₹12L CTC)": lg_canteens
+      "🎯 50m Micro-Launch Circles": lg_50m_circles,
+      "🔥 Remapped Composite Heatmap": lg_remapped_heat,
+      "💼 Corporate (>₹12 LPA CTC)": lg_corp,
+      "☕ Specialty Coffee & Roasters": lg_coffee,
+      "🏋️ Cult.fit & Gold's Gyms": lg_gyms,
+      "🥐 Bakeries & Patisseries": lg_bakery,
+      "🍨 Desserts & Shakes": lg_desserts,
+      "🥗 Organic Stores & Gourmet": lg_organic,
+      "🏢 Gated Societies Cluster": markers_cluster
     };
 
     L.control.layers(null, overlays, { collapsed: false, position: 'topright' }).addTo(map);
   </script>
-</body>
-</html>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hyderabad Directories</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #f8fafc;
-      color: #1e293b;
-      margin: 0;
-      padding: 2rem;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-    }
-
-    .file-grid {
-      display: grid;
-      gap: 1rem;
-    }
-
-    .file-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #ffffff;
-      padding: 1.25rem;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .file-info {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .file-icon {
-      background-color: #e0f2fe;
-      color: #0284c7;
-      padding: 0.75rem;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.875rem;
-    }
-
-    .file-details h2 {
-      margin: 0;
-      font-size: 1rem;
-      font-weight: 600;
-    }
-
-    .file-details p {
-      margin: 0.25rem 0 0;
-      font-size: 0.85rem;
-      color: #64748b;
-    }
-
-    .btn-download {
-      display: inline-block;
-      background-color: #0f172a;
-      color: #ffffff;
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
-
-    .btn-download:hover {
-      background-color: #334155;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Hyderabad Resource Directories</h1>
-
-    <div class="file-grid">
-      <!-- File 1 -->
-      <div class="file-card">
-        <div class="file-info">
-          <div class="file-icon">XLSX</div>
-          <div class="file-details">
-            <h2>Hyderabad Master Directory</h2>
-            <p>Food & Beverage, Fitness, and Nightlife</p>
-          </div>
-        </div>
-        <a href="Hyderabad_Master_Directory_FandB_Fitness_Nightlife.xlsx" class="btn-download" download>
-          Download
-        </a>
-      </div>
-
-      <!-- File 2 -->
-      <div class="file-card">
-        <div class="file-info">
-          <div class="file-icon">XLSX</div>
-          <div class="file-details">
-            <h2>Hyderabad Corporate Companies</h2>
-            <p>Organizations with compensation packages above 12 LPA</p>
-          </div>
-        </div>
-        <a href="Hyderabad_Corporate_Companies_Above_12_LPA.xlsx" class="btn-download" download>
-          Download
-        </a>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
