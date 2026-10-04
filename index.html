@@ -3,357 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Being Juice — Hyderabad Precision Network GIS (Kepler Engine)</title>
+  <title>Being Juice — Hyderabad Precision Network GIS</title>
 
   <!-- Leaflet CSS & Plugins -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
   <style>
-    :root {
-      --kepler-bg: rgba(18, 20, 26, 0.92);
-      --kepler-panel-border: rgba(255, 255, 255, 0.08);
-      --kepler-accent: #00e676;
-      --kepler-cyan: #00e5ff;
-      --kepler-text-dim: #8f9ca8;
-      --kepler-text-bright: #f0f4f8;
-      --kepler-card: #1c202a;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html { height: 100%; width: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; }
+    #map { height: 100vh; width: 100vw; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body, html { height: 100%; width: 100%; background: #0c0e14; overflow: hidden; }
-    #map { height: 100vh; width: 100vw; background: #0c0e14; }
-
-    /* Free OpenStreetMap Dark Mode Filter */
-    .dark-tiles {
-      filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
-    }
-
-    /* Kepler Left Floating Control Panel */
-    .kepler-deck {
+    /* Dashboard Header */
+    .dashboard-panel {
       position: absolute;
-      top: 16px;
-      left: 16px;
-      width: 360px;
-      max-height: calc(100vh - 32px);
+      top: 15px;
+      left: 60px;
       z-index: 1000;
-      background: var(--kepler-bg);
-      backdrop-filter: blur(14px);
-      border: 1px solid var(--kepler-panel-border);
-      border-radius: 8px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
-      display: flex;
-      flex-direction: column;
-      color: var(--kepler-text-bright);
-    }
-
-    .kepler-header {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--kepler-panel-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .kepler-title {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .kepler-title span {
-      background: linear-gradient(135deg, #00e676, #00b0ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .stat-badge {
-      font-size: 10px;
-      background: rgba(0, 230, 118, 0.15);
-      color: var(--kepler-accent);
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-weight: 700;
-      border: 1px solid rgba(0, 230, 118, 0.3);
-    }
-
-    .kepler-content {
-      padding: 12px 16px;
-      overflow-y: auto;
-      flex: 1;
-    }
-
-    /* KPI Summary Row */
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-    .metric-card {
-      background: var(--kepler-card);
-      padding: 8px;
-      border-radius: 5px;
-      border-left: 2px solid var(--kepler-cyan);
-    }
-    .metric-card.green { border-color: var(--kepler-accent); }
-    .metric-card.orange { border-color: #ff9100; }
-    .metric-val { font-size: 13px; font-weight: 700; color: #fff; }
-    .metric-lbl { font-size: 9px; color: var(--kepler-text-dim); text-transform: uppercase; margin-top: 2px; }
-
-    /* Kepler Layer Accordion */
-    .section-title {
-      font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--kepler-text-dim);
-      margin: 14px 0 8px 0;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .layer-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 7px 10px;
-      background: var(--kepler-card);
-      border-radius: 4px;
-      margin-bottom: 5px;
-      border: 1px solid transparent;
-      transition: all 0.15s ease;
-    }
-    .layer-row:hover { border-color: rgba(255,255,255,0.15); }
-    .layer-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-    }
-    .layer-color { width: 8px; height: 8px; border-radius: 2px; }
-
-    /* Switch Component */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 28px;
-      height: 15px;
-    }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #2b313e; transition: .2s; border-radius: 15px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 11px; width: 11px; left: 2px; bottom: 2px;
-      background-color: white; transition: .2s; border-radius: 50%;
-    }
-    input:checked + .slider { background-color: var(--kepler-accent); }
-    input:checked + .slider:before { transform: translateX(13px); }
-
-    /* Dynamic Sliders */
-    .slider-box {
-      background: var(--kepler-card);
-      padding: 9px 11px;
-      border-radius: 5px;
-      margin-bottom: 8px;
-    }
-    .slider-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 10.5px;
-      color: var(--kepler-text-dim);
-      margin-bottom: 5px;
-    }
-    .slider-label span { color: #fff; font-weight: 600; }
-    .range-input {
-      width: 100%;
-      height: 4px;
-      border-radius: 2px;
-      background: #2b313e;
-      outline: none;
-      -webkit-appearance: none;
-    }
-    .range-input::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--kepler-cyan);
-      cursor: pointer;
-    }
-
-    /* Excel Ingestion Kepler Pill */
-    .kepler-upload {
-      border: 1px dashed rgba(255,255,255,0.2);
-      border-radius: 5px;
-      padding: 9px;
-      text-align: center;
-      margin-top: 10px;
-      background: rgba(0,0,0,0.25);
-    }
-    .upload-btn {
-      display: inline-block;
-      margin-top: 5px;
-      background: #232834;
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #fff;
-      padding: 5px 12px;
-      border-radius: 4px;
-      font-size: 10.5px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .upload-btn:hover { background: #2f3646; }
-
-    /* Dark Kepler Popups */
-    .leaflet-popup-content-wrapper {
-      background: rgba(18, 20, 26, 0.96) !important;
-      color: #fff !important;
-      border: 1px solid rgba(255,255,255,0.1) !important;
+      background: rgba(255, 255, 255, 0.97);
       backdrop-filter: blur(10px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7) !important;
-      border-radius: 6px !important;
-      padding: 0 !important;
+      padding: 14px 18px;
+      border-radius: 8px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+      border-left: 6px solid #2e7d32;
+      max-width: 470px;
     }
-    .leaflet-popup-tip { background: rgba(18, 20, 26, 0.96) !important; }
-    .k-popup-header {
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+    .dashboard-panel h1 { font-size: 16px; color: #1b5e20; margin-bottom: 3px; font-weight: 800; }
+    .dashboard-panel p { font-size: 11px; color: #444; line-height: 1.4; }
+    
+    .excel-upload-box {
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: #e8f5e9;
+      border: 1px dashed #2e7d32;
+      border-radius: 6px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
-    .k-popup-body { padding: 10px 12px; font-size: 11px; line-height: 1.5; }
-    .k-field { display: flex; justify-content: space-between; margin-bottom: 3px; color: var(--kepler-text-dim); }
-    .k-field b { color: #f0f4f8; font-weight: 500; }
-    .k-tag {
+    .excel-upload-box span { font-size: 11px; color: #1b5e20; font-weight: 600; }
+    .excel-upload-btn {
+      background: #2e7d32;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
       display: inline-block;
-      font-size: 9px;
-      padding: 1px 5px;
-      border-radius: 3px;
-      background: rgba(255,255,255,0.1);
-      color: #00e5ff;
+    }
+    .excel-upload-btn:hover { background: #1b5e20; }
+    #excel-input { display: none; }
+
+    .badge-bar { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+    .badge-pill { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px; color: #fff; }
+
+    /* Popups */
+    .popup-box { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; line-height: 1.45; min-width: 280px; }
+    .popup-header { color: #fff; padding: 7px 11px; border-radius: 4px 4px 0 0; font-size: 13px; font-weight: 700; }
+    .popup-content { padding: 9px 12px; border: 1px solid #ddd; border-top: none; background: #fff; border-radius: 0 0 4px 4px; }
+    .kpi-row { display: flex; justify-content: space-between; margin: 3px 0; border-bottom: 1px dashed #eee; padding-bottom: 2px; }
+    .kpi-row b { color: #333; }
+    .kpi-row span { font-weight: 700; color: #1b5e20; }
+
+    /* Pin Icons */
+    .pin-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: white;
+      border: 2px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
     }
 
-    /* Cluster Icon Styling */
-    .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
-      background-color: rgba(0, 229, 255, 0.25) !important;
+    /* 50m Circle Pulse Animation */
+    @keyframes circle-pulse {
+      0% { stroke-opacity: 0.9; stroke-width: 3; }
+      50% { stroke-opacity: 0.4; stroke-width: 6; }
+      100% { stroke-opacity: 0.9; stroke-width: 3; }
     }
-    .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
-      background-color: rgba(12, 14, 20, 0.9) !important;
-      color: var(--kepler-cyan) !important;
-      font-weight: 700;
-      font-size: 10px;
-      border: 1px solid var(--kepler-cyan);
+    .launch-50m-circle {
+      animation: circle-pulse 2s infinite ease-in-out;
     }
   </style>
 </head>
 <body>
 
-  <!-- Kepler Floating Left Deck -->
-  <div class="kepler-deck">
-    <div class="kepler-header">
-      <div class="kepler-title">
-        <i class="fa-solid fa-cube" style="color:var(--kepler-accent);"></i>
-        <span>Being Juice</span> GIS
-      </div>
-      <div class="stat-badge">LIVE INTEL</div>
+  <div class="dashboard-panel">
+    <h1>Being Juice — Hyderabad Network GIS</h1>
+    <p>Calibrated for <b>40–50 cups/day baseline ($100\%$ strike rate)</b> at ₹130–₹250. Remapped with composite multi-variable heatmap, exact <b>50-meter micro-launch circles</b>, 52 Corporate Giants (>₹12 LPA), Coffee Roasters, Gyms, Patisseries, and Gated Communities.</p>
+    
+    <div class="excel-upload-box">
+      <span id="upload-status">📁 Load All 3,969 Societies from Sheet:</span>
+      <label class="excel-upload-btn" for="excel-input">Select Excel</label>
+      <input type="file" id="excel-input" accept=".xlsx, .xls" />
     </div>
 
-    <div class="kepler-content">
-      <!-- High-Level Metrics -->
-      <div class="metric-grid">
-        <div class="metric-card green">
-          <div class="metric-val" id="metric-launch-count">5</div>
-          <div class="metric-lbl">Launch Rings</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-val" id="metric-soc-count">24</div>
-          <div class="metric-lbl">Apts Filtered</div>
-        </div>
-        <div class="metric-card orange">
-          <div class="metric-val">100%</div>
-          <div class="metric-lbl">Strike Rate</div>
-        </div>
-      </div>
-
-      <!-- Filters & Dynamic Thresholds -->
-      <div class="section-title">Data Filter Controls</div>
-
-      <div class="slider-box">
-        <div class="slider-label">Min Residential Flats: <span id="units-val">0</span></div>
-        <input type="range" min="0" max="3500" step="100" value="0" class="range-input" id="filter-units" />
-      </div>
-
-      <div class="slider-box">
-        <div class="slider-label">Heat Intensity Radius: <span id="heat-val">40px</span></div>
-        <input type="range" min="15" max="70" step="5" value="40" class="range-input" id="filter-heat" />
-      </div>
-
-      <!-- Layer Visibility Toggles -->
-      <div class="section-title">Visual Layers</div>
-
-      <div class="layer-row">
-        <div class="layer-info">
-          <div class="layer-color" style="background:#00e676;"></div>
-          <span>50m Launch Zones & Isochrones</span>
-        </div>
-        <label class="switch"><input type="checkbox" id="layer-launch" checked><span class="slider"></span></label>
-      </div>
-
-      <div class="layer-row">
-        <div class="layer-info">
-          <div class="layer-color" style="background:#ff1744;"></div>
-          <span>Multi-Variable Heatmap</span>
-        </div>
-        <label class="switch"><input type="checkbox" id="layer-heat" checked><span class="slider"></span></label>
-      </div>
-
-      <div class="layer-row">
-        <div class="layer-info">
-          <div class="layer-color" style="background:#ff5722;"></div>
-          <span>Corporate Tech HQs (>₹12L CTC)</span>
-        </div>
-        <label class="switch"><input type="checkbox" id="layer-corp" checked><span class="slider"></span></label>
-      </div>
-
-      <div class="layer-row">
-        <div class="layer-info">
-          <div class="layer-color" style="background:#00e5ff;"></div>
-          <span>Cult.fit & Luxury Gyms</span>
-        </div>
-        <label class="switch"><input type="checkbox" id="layer-gyms" checked><span class="slider"></span></label>
-      </div>
-
-      <div class="layer-row">
-        <div class="layer-info">
-          <div class="layer-color" style="background:#e040fb;"></div>
-          <span>Specialty Coffee & Roasters</span>
-        </div>
-        <label class="switch"><input type="checkbox" id="layer-coffee" checked><span class="slider"></span></label>
-      </div>
-
-      <div class="layer-row">
-        <div class="layer-info">
-          <div class="layer-color" style="background:#78909c;"></div>
-          <span>Gated Communities Cluster</span>
-        </div>
-        <label class="switch"><input type="checkbox" id="layer-societies" checked><span class="slider"></span></label>
-      </div>
-
-      <!-- IndexedDB File Parser -->
-      <div class="kepler-upload">
-        <div style="font-size:10.5px; color:var(--kepler-text-dim);" id="idb-status">Excel Data Store: Ready</div>
-        <label class="upload-btn" for="excel-upload"><i class="fa-solid fa-file-arrow-up"></i> Ingest 3,969 Master Sheet</label>
-        <input type="file" id="excel-upload" accept=".xlsx, .xls" style="display:none;" />
-      </div>
+    <div class="badge-bar">
+      <span class="badge-pill" style="background:#00e676; color:#000;">🎯 50m Launch Circles</span>
+      <span class="badge-pill" style="background:#d32f2f;">🔥 Remapped Heatmap</span>
+      <span class="badge-pill" style="background:#bf360c;">Corporate (>₹12L)</span>
+      <span class="badge-pill" style="background:#0288d1;">Gyms (Cult/Gold's)</span>
+      <span class="badge-pill" style="background:#00796b;">Specialty Coffee</span>
+      <span class="badge-pill" style="background:#ad1457;">Bakeries</span>
+      <span class="badge-pill" style="background:#f57c00;">Desserts & Shakes</span>
+      <span class="badge-pill" style="background:#6a1b9a;">Organic Stores</span>
+      <span class="badge-pill" style="background:#37474f;">Societies</span>
     </div>
   </div>
 
@@ -366,337 +125,474 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <script>
-    // -------------------------------------------------------------
-    // MAP INITIALIZATION (OpenStreetMap + Dark CSS Filter)
-    // 100% Free & No API Key Required
-    // -------------------------------------------------------------
     const map = L.map('map', {
       center: [17.4350, 78.3850],
       zoom: 12,
-      zoomControl: false
+      zoomControl: true
     });
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      className: 'dark-tiles'
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Esri &mdash; Being Juice Master Intelligence',
+      maxZoom: 18
     }).addTo(map);
 
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-    function createKeplerMarker(color, icon) {
+    function makeIcon(color, faClass) {
       return L.divIcon({
         className: '',
-        html: `
-          <div style="position:relative; display:flex; align-items:center; justify-content:center;">
-            <div style="position:absolute; width:26px; height:26px; border-radius:50%; background:${color}; opacity:0.25; filter:blur(3px);"></div>
-            <div style="width:22px; height:22px; border-radius:50%; background:#10131a; border:1.5px solid ${color}; display:flex; align-items:center; justify-content:center; color:${color}; font-size:9.5px; box-shadow:0 0 8px rgba(0,0,0,0.8);">
-              <i class="${icon}"></i>
-            </div>
-          </div>`,
-        iconSize: [26, 26],
-        iconAnchor: [13, 13],
-        popupAnchor: [0, -12]
+        html: `<div class="pin-icon" style="background:${color}; width:28px; height:28px;"><i class="${faClass}" style="font-size:12px;"></i></div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+        popupAnchor: [0, -14]
       });
     }
 
     // -------------------------------------------------------------
-    // LAYER GROUPS
+    // LAYER 1: 50-METER EXACT MICRO-LAUNCH CIRCLES
     // -------------------------------------------------------------
-    const lg_launch = L.layerGroup().addTo(map);
-    const lg_corp = L.layerGroup().addTo(map);
-    const lg_gyms = L.layerGroup().addTo(map);
-    const lg_coffee = L.layerGroup().addTo(map);
-    const markers_cluster = L.markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 45 }).addTo(map);
-
-    // -------------------------------------------------------------
-    // LAUNCH LOCATIONS WITH MULTI-STAGE DELIVERY ISOCHRONES
-    // -------------------------------------------------------------
-    const launchSites = [
+    const lg_50m_circles = L.layerGroup();
+    const circlesConfig = [
       {
-        id: "SITE-01", name: "Sattva Knowledge City", lat: 17.43415, lon: 78.38240,
-        type: "Micro Kiosk (80-100 sq ft)", rent: "₹35k-₹55k + 12% Rev Share", target: "70-105 cups/day",
-        corps: "ServiceNow, Qualcomm, Novartis", footfall: "35k Dwellers"
+        "id": "SITE-01",
+        "name": "Sattva Knowledge City — Central Concourse",
+        "lat": 17.43415, "lon": 78.38240,
+        "format": "Format A: Micro Kiosk (80–100 sq ft)",
+        "pincode": 500081,
+        "income": "₹80K–₹1.5L/mo (Corporate CTC >₹18L)",
+        "rent_model": "₹35k–₹55k base + 12% revenue share",
+        "target_cups": "70–105 cups/day",
+        "peak_window": "1:00 PM – 5:30 PM (Midday corporate slump)",
+        "street_side": "Internal Central Piazza Walkway (No road medians)",
+        "rider_ingress": "Direct basement feeder bay (Rider turnaround < 3 mins)",
+        "primary_anchors": "ServiceNow, Qualcomm, State Street, Novartis, Southside Pickleball, Cult.fit Knowledge City",
+        "co_tenancy": "Third Wave Coffee, Boba Bhai, Starbucks, Chaayos"
       },
       {
-        id: "SITE-02", name: "Jubilee Hills Road 36", lat: 17.43378, lon: 78.40712,
-        type: "High-Street Cafe Counter", rent: "₹1.5L-₹2.2L Fixed", target: "80-120 cups/day",
-        corps: "HNI Families, KBR Park Morning Run", footfall: "High Net Worth Discretionary"
+        "id": "SITE-02",
+        "name": "Jubilee Hills Road 36 — Peddamma Gudi Nexus",
+        "lat": 17.43378, "lon": 78.40712,
+        "format": "Format B: High-Street Walk-in Counter / Cafe (300–450 sq ft)",
+        "pincode": 500033,
+        "income": "₹1.2L–₹2.5L/mo (Ultra-Affluent Core)",
+        "rent_model": "₹1.5L–₹2.2L/month fixed lease",
+        "target_cups": "80–120 cups/day (AOV ₹310)",
+        "peak_window": "7:00 AM – 10:30 AM & 5:30 PM – 11:30 PM",
+        "street_side": "Right side heading toward Madhapur (Deceleration lane)",
+        "rider_ingress": "Curbside two-wheeler drop-off lane directly under metro pillar",
+        "primary_anchors": "Cult.fit Signature Checkpost, F45 Rd 36, KBR Park morning joggers, Apollo Cradle (Rd 92)",
+        "co_tenancy": "Starbucks Flagship, Blue Tokai, Theobroma, Harley's, Conçù"
       },
       {
-        id: "SITE-03", name: "Banjara Hills Rd 2 (Q-Mart)", lat: 17.42265, lon: 78.43140,
-        type: "Gourmet Shop-in-Shop", rent: "14%-16% Rev Share", target: "50-75 cups/day",
-        corps: "Park Hyatt Catchment, Annapurna Studios", footfall: "Ultra High AOV"
+        "id": "SITE-03",
+        "name": "Banjara Hills Road No. 2 — Q-Mart Gourmet Foyer",
+        "lat": 17.42265, "lon": 78.43140,
+        "format": "Format A: Gourmet Shop-in-Shop (50–75 sq ft)",
+        "pincode": 500034,
+        "income": "₹1.5L–₹3L+/mo (Highest discretionary spend in HYD)",
+        "rent_model": "14%–16% Revenue Share (Zero upfront Capex)",
+        "target_cups": "50–75 cups/day (AOV ₹240)",
+        "peak_window": "11:00 AM – 2:00 PM & 5:00 PM – 8:30 PM",
+        "street_side": "Entrance Foyer of Q-Mart Gourmet (Protected high-dwell foyer)",
+        "rider_ingress": "Dedicated supermarket parking basement",
+        "primary_anchors": "Park Hyatt Residences, Annapurna Studios, Rainbow Children's Hospital Rd 2",
+        "co_tenancy": "Q-Mart Gourmet organic aisles, Cream Stone Road 2, Starbucks Road 2"
       },
       {
-        id: "SITE-04", name: "Financial District (One West)", lat: 17.41712, lon: 78.34915,
-        type: "Dual QSR + Swiggy Hatch", rent: "₹75k-₹1.1L Lease", target: "65-95 cups/day",
-        corps: "Prestige High Fields, Waverock", footfall: "Tech Expats & Executives"
+        "id": "SITE-04",
+        "name": "Financial District — One West / Prestige High Fields Spine",
+        "lat": 17.41712, "lon": 78.34915,
+        "format": "Format B: Dual QSR Counter + Dedicated Swiggy Hatch (200–300 sq ft)",
+        "pincode": 500075,
+        "income": "₹80K–₹1.5L/mo (Tech Leadership & Expats)",
+        "rent_model": "₹75k–₹1.1L/month retail lease",
+        "target_cups": "65–95 cups/day",
+        "peak_window": "7:30 AM – 10:00 AM & 6:00 PM – 10:30 PM",
+        "street_side": "Evenings Outbound Side (Towards residential gates)",
+        "rider_ingress": "Direct surface parking bay at One West Galleria (<90s runner pickup)",
+        "primary_anchors": "Prestige High Fields (2,240 flats), DSR The Twins (44 fl), Waverock IT Park (25k staff)",
+        "co_tenancy": "Starbucks One West, Subway, Samosa Party, One Golf Pickleball"
       },
       {
-        id: "SITE-05", name: "Kondapur Botanical Garden", lat: 17.46475, lon: 78.35718,
-        type: "Fitness / Delivery Hub", rent: "₹60k-₹85k Lease", target: "60-90 cups/day",
-        corps: "Cult.fit Kondapur, Ektha Pearl", footfall: "Dual-Income Tech Fitness"
+        "id": "SITE-05",
+        "name": "Kondapur — Botanical Garden Road (Cult & Karachi Nexus)",
+        "lat": 17.46475, "lon": 78.35718,
+        "format": "Format B: High-Street Fitness / Delivery Hub (180–250 sq ft)",
+        "pincode": 500084,
+        "income": "₹80K–₹1.5L/mo (Dual-Income IT Families)",
+        "rent_model": "₹60k–₹85k/month lease",
+        "target_cups": "60–90 cups/day",
+        "peak_window": "6:30 AM – 9:30 AM & 5:30 PM – 9:30 PM",
+        "street_side": "Directly facing pedestrian sidewalk below Cult.fit Kondapur",
+        "rider_ingress": "Front apron two-wheeler parking on Botanical Garden arterial road",
+        "primary_anchors": "Cult.fit Kondapur (above Karachi), Anytime Fitness Ektha Pearl, Chirec International School",
+        "co_tenancy": "Karachi Bakery, Theobroma, Cream Stone, The ThickShake Factory"
       }
     ];
 
-    launchSites.forEach(s => {
-      // 500m Walk Zone
-      L.circle([s.lat, s.lon], {
-        radius: 500, color: '#00e5ff', fillColor: '#00e5ff', fillOpacity: 0.04, weight: 1, dashArray: '4, 4'
-      }).addTo(lg_launch);
+    circlesConfig.forEach(c => {
+      const circle = L.circle([c.lat, c.lon], {
+        radius: 50,
+        color: '#00e676',
+        fillColor: '#00e676',
+        fillOpacity: 0.28,
+        weight: 3,
+        className: 'launch-50m-circle'
+      }).addTo(lg_50m_circles);
 
-      // 50m Micro Core
-      L.circle([s.lat, s.lon], {
-        radius: 50, color: '#00e676', fillColor: '#00e676', fillOpacity: 0.28, weight: 2
-      }).addTo(lg_launch);
-
-      const popupHtml = `
-        <div class="k-popup-header">
-          <span style="color:var(--kepler-accent); font-weight:800;">${s.id}</span>
-          <span class="k-tag">${s.target}</span>
-        </div>
-        <div class="k-popup-body">
-          <h4 style="color:#fff; margin-bottom:6px;">${s.name}</h4>
-          <div class="k-field">Format: <b>${s.type}</b></div>
-          <div class="k-field">Target Lease: <b>${s.rent}</b></div>
-          <div class="k-field">Anchors: <b>${s.corps}</b></div>
-          <div class="k-field">Audience: <b>${s.footfall}</b></div>
+      const circlePopup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#1b5e20;">🎯 50m Launch Site: ${c.name}</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Format:</b> <span>${c.format}</span></div>
+            <div class="kpi-row"><b>Target Rent:</b> <span>${c.rent_model}</span></div>
+            <div class="kpi-row"><b>Volume Target:</b> <span style="color:#2e7d32;">${c.target_cups}</span></div>
+            <div class="kpi-row"><b>Peak Window:</b> <span>${c.peak_window}</span></div>
+            <div class="kpi-row"><b>Street Side / Median:</b> <span>${c.street_side}</span></div>
+            <div class="kpi-row"><b>Rider Ingress:</b> <span>${c.rider_ingress}</span></div>
+            <div class="kpi-row"><b>Catchment Income:</b> <span>${c.income}</span></div>
+            <p style="margin-top:6px; font-size:11px; color:#333;"><b>Primary 50m Anchors:</b> ${c.primary_anchors}</p>
+            <p style="margin-top:4px; font-size:11px; color:#555;"><b>Immediate Co-Tenancy:</b> ${c.co_tenancy}</p>
+          </div>
         </div>
       `;
+      circle.bindPopup(circlePopup);
 
-      L.marker([s.lat, s.lon], { icon: createKeplerMarker('#00e676', 'fa-solid fa-bullseye') })
-        .bindPopup(popupHtml)
-        .addTo(lg_launch);
+      L.marker([c.lat, c.lon], {
+        icon: makeIcon('#1b5e20', 'fa-solid fa-bullseye')
+      }).bindPopup(circlePopup).addTo(lg_50m_circles);
     });
 
     // -------------------------------------------------------------
-    // REMAPPED HEATMAP
+    // LAYER 2: REMAPPED COMPOSITE HEATMAP
     // -------------------------------------------------------------
-    const heatData = [
+    const compositeHeatPoints = [
       [17.43415, 78.3824, 1.0], [17.43378, 78.40712, 1.0], [17.42265, 78.4314, 1.0],
-      [17.41712, 78.34915, 0.95], [17.46475, 78.35718, 0.92], [17.41547, 78.43842, 0.9],
-      [17.44636, 78.38091, 0.85], [17.4435, 78.3772, 0.95], [17.446, 78.368, 0.95],
-      [17.4162, 78.3441, 0.95], [17.45914, 78.29661, 0.85]
+      [17.41712, 78.34915, 0.95], [17.46475, 78.35718, 0.92], [17.41547, 78.43842, 1.0],
+      [17.43332, 78.40457, 0.95], [17.44636, 78.38091, 0.85], [17.3938, 78.34681, 0.85],
+      [17.4665, 78.35528, 0.85], [17.42282, 78.45634, 0.9], [17.40777, 78.46095, 0.8],
+      [17.44294, 78.46052, 0.7], [17.40441, 78.48431, 0.7], [17.40041, 78.37236, 0.7],
+      [17.50077, 78.55561, 0.7], [17.41168, 78.41784, 0.95], [17.54409, 78.48178, 0.6],
+      [17.45914, 78.29661, 0.85], [17.405, 78.325, 0.88], [17.4435, 78.3772, 0.95],
+      [17.446, 78.368, 0.95], [17.4162, 78.3441, 0.95], [17.4184, 78.3486, 0.95],
+      [17.448, 78.391, 0.85], [17.4342, 78.3822, 0.95], [17.4648, 78.3572, 0.88]
     ];
-    let heatLayer = L.heatLayer(heatData, {
+    const lg_remapped_heat = L.heatLayer(compositeHeatPoints, {
       radius: 40,
-      blur: 24,
-      maxZoom: 14,
-      gradient: { 0.2: '#002699', 0.45: '#00e5ff', 0.7: '#ffff00', 1.0: '#ff1744' }
-    }).addTo(map);
+      blur: 26,
+      maxZoom: 13,
+      gradient: { 0.2: '#002699', 0.45: '#00e5ff', 0.65: '#ffeb3b', 0.82: '#ff3d00', 1.0: '#d50000' }
+    });
 
     // -------------------------------------------------------------
-    // CORPORATE TECH HUBS (>₹12L CTC)
+    // LAYER 3: 52 CORPORATE COMPANIES (>₹12L CTC)
     // -------------------------------------------------------------
-    const corporateData = [
-      ["Microsoft IDC", "Gachibowli", "₹20 - ₹45 LPA", 17.4435, 78.3772],
-      ["Google India", "Kondapur / FinDist", "₹22 - ₹50 LPA", 17.446, 78.368],
-      ["Amazon Campus", "Nanakramguda", "₹18 - ₹40 LPA", 17.4162, 78.3441],
-      ["Apple Operations", "Nanakramguda", "₹20 - ₹45 LPA", 17.4184, 78.3486],
-      ["ServiceNow", "Knowledge City", "₹18 - ₹36 LPA", 17.4342, 78.3822],
-      ["Qualcomm", "Raidurg", "₹16 - ₹32 LPA", 17.4350, 78.3810]
+    const lg_corp = L.layerGroup();
+    const corpCompanies = [
+      ["Microsoft India (IDC)", "Tier-1 Tech & Product", "Gachibowli", "₹20 - ₹45 LPA", "₹50 - ₹1.2+ Cr", "Software Eng, Cloud, AI/ML", 17.4435, 78.3772],
+      ["Google India", "Tier-1 Tech & Product", "Kondapur / Financial Dist", "₹22 - ₹50 LPA", "₹60 - ₹1.5+ Cr", "Software Eng, SRE, Cloud", 17.446, 78.368],
+      ["Amazon / AWS", "Tier-1 Tech & Product", "Nanakramguda / Gachibowli", "₹18 - ₹40 LPA", "₹45 - ₹1.0+ Cr", "SDE, Systems, Cloud", 17.4162, 78.3441],
+      ["Apple", "Tier-1 Tech & Product", "Nanakramguda", "₹20 - ₹45 LPA", "₹50 - ₹1.2+ Cr", "Maps, Software Eng, Hardware", 17.4184, 78.3486],
+      ["Salesforce", "Tier-1 Tech & Product", "HITEC City / Madhapur", "₹18 - ₹38 LPA", "₹45 - ₹95 LPA", "Platform Eng, SaaS, Sales Eng", 17.445, 78.38],
+      ["ServiceNow", "Tier-1 Tech & Product", "Knowledge City, Madhapur", "₹18 - ₹36 LPA", "₹42 - ₹90 LPA", "Core Platform, DevOps, UI/UX", 17.4342, 78.3822],
+      ["Uber", "Tier-1 Tech & Product", "Kondapur", "₹20 - ₹42 LPA", "₹48 - ₹1.1+ Cr", "Fintech Eng, Mobility, Infra", 17.4648, 78.3572],
+      ["Oracle", "Tier-1 Tech & Product", "Madhapur", "₹14 - ₹30 LPA", "₹32 - ₹70 LPA", "Cloud Infra (OCI), ERP", 17.448, 78.391],
+      ["Qualcomm", "Semiconductor & Hardware", "Raidurg / HITEC City", "₹16 - ₹32 LPA", "₹35 - ₹80 LPA", "Embedded Systems, VLSI, AI/DSP", 17.4342, 78.3822],
+      ["Goldman Sachs", "BFSI & FinTech", "HITEC City", "₹18 - ₹35 LPA", "₹40 - ₹85 LPA", "Quant Eng, Risk Analytics", 17.445, 78.38],
+      ["JPMorgan Chase & Co.", "BFSI & FinTech", "Knowledge City", "₹15 - ₹32 LPA", "₹35 - ₹75 LPA", "Asset Mgmt Tech, Corporate Banking", 17.4342, 78.3822],
+      ["D. E. Shaw India", "HFT & Quantitative Finance", "HITEC City", "₹25 - ₹55 LPA", "₹65 - ₹1.5+ Cr", "Quantitative Research, Low-Latency", 17.445, 78.38],
+      ["State Street", "BFSI & FinTech", "Knowledge City", "₹14 - ₹28 LPA", "₹30 - ₹65 LPA", "Fund Accounting, Risk", 17.4342, 78.3822],
+      ["Novartis", "Pharma & Life Sciences", "Knowledge City", "₹14 - ₹28 LPA", "₹30 - ₹60 LPA", "Data Science, Drug Commercialization", 17.4342, 78.3822]
     ];
-    corporateData.forEach(c => {
-      const p = `
-        <div class="k-popup-header">
-          <span style="color:#ff5722; font-weight:700;">Corporate Anchor</span>
+    corpCompanies.forEach(c => {
+      const popup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#bf360c;">${c[0]}</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Category:</b> <span>${c[1]}</span></div>
+            <div class="kpi-row"><b>Location:</b> <span>${c[2]}</span></div>
+            <div class="kpi-row"><b>Mid-Level CTC:</b> <span>${c[3]}</span></div>
+            <div class="kpi-row"><b>Senior / Lead CTC:</b> <span>${c[4]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Key Functions:</b> ${c[5]}</p>
+          </div>
         </div>
-        <div class="k-popup-body">
-          <h4 style="color:#fff;">${c[0]}</h4>
-          <div class="k-field">Campus: <b>${c[1]}</b></div>
-          <div class="k-field">Median CTC: <b>${c[2]}</b></div>
-        </div>`;
-      L.marker([c[3], c[4]], { icon: createKeplerMarker('#ff5722', 'fa-solid fa-briefcase') })
-        .bindPopup(p).addTo(lg_corp);
+      `;
+      L.marker([c[6], c[7]], { icon: makeIcon('#bf360c', 'fa-solid fa-briefcase') }).bindPopup(popup).addTo(lg_corp);
     });
 
     // -------------------------------------------------------------
-    // GYMS & RECREATION
+    // LAYER 4: COFFEE SHOPS & ROASTERS (SAMPLE FROM MASTER DIRECTORY)
     // -------------------------------------------------------------
-    const gymData = [
-      ["Cult.fit Signature", "Jubilee Hills Rd 36", 17.4338, 78.4069],
-      ["Cult.fit Botanical", "Kondapur", 17.4648, 78.3572],
-      ["Gold's Gym Luxury", "Banjara Hills Rd 10", 17.4285, 78.4140]
+    const lg_coffee = L.layerGroup();
+    const coffeeOutlets = [
+      ["Starbucks", "Global Coffee Chain", "Jubilee Hills", "Plot 1299, Road No. 36", "Flagship Café", "7:30 AM - 11:30 PM", 17.4338, 78.4069],
+      ["Starbucks", "Global Coffee Chain", "Banjara Hills", "Road No. 2, Annapurna Studios", "Boutique Experience", "8:00 AM - 11:00 PM", 17.4225, 78.4312],
+      ["Starbucks", "Global Coffee Chain", "Knowledge City", "Phoenix Centrance / Sattva", "Tech Park Café", "8:00 AM - 11:00 PM", 17.4342, 78.3822],
+      ["Third Wave Coffee", "Specialty Coffee Roaster", "Knowledge City", "Sattva Knowledge City", "Specialty Café", "8:00 AM - 12:00 AM", 17.434, 78.383],
+      ["Third Wave Coffee", "Specialty Coffee Roaster", "Jubilee Hills", "Road No. 36", "Specialty Café", "8:00 AM - 1:00 AM", 17.432, 78.408],
+      ["Blue Tokai Coffee Roasters", "Specialty Coffee Roaster", "Jubilee Hills", "Road No. 36", "Artisanal Roastery", "7:00 AM - 11:00 PM", 17.4335, 78.407],
+      ["Roastery Coffee House", "Artisanal Coffee Roaster", "Banjara Hills", "Road No. 14", "Heritage Bungalow Café", "8:00 AM - 11:00 PM", 17.418, 78.428],
+      ["The Coffee Cup", "Artisanal Café", "Sainikpuri", "Canara Bank Lane", "Community Landmark", "9:00 AM - 11:30 PM", 17.489, 78.547]
     ];
-    gymData.forEach(g => {
-      const p = `
-        <div class="k-popup-header"><span style="color:#00e5ff;">Fitness Nexus</span></div>
-        <div class="k-popup-body"><h4 style="color:#fff;">${g[0]}</h4><p style="color:var(--kepler-text-dim);">${g[1]}</p></div>`;
-      L.marker([g[2], g[3]], { icon: createKeplerMarker('#00e5ff', 'fa-solid fa-dumbbell') })
-        .bindPopup(p).addTo(lg_gyms);
+    coffeeOutlets.forEach(c => {
+      const popup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#004d40;">${c[0]} (${c[2]})</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Format:</b> <span>${c[4]}</span></div>
+            <div class="kpi-row"><b>Timings:</b> <span>${c[5]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Address:</b> ${c[3]}</p>
+          </div>
+        </div>
+      `;
+      L.marker([c[6], c[7]], { icon: makeIcon('#00796b', 'fa-solid fa-mug-hot') }).bindPopup(popup).addTo(lg_coffee);
     });
 
     // -------------------------------------------------------------
-    // SPECIALTY COFFEE
+    // LAYER 5: GYMS & FITNESS (CULT.FIT & GOLD'S)
     // -------------------------------------------------------------
-    const coffeeData = [
-      ["Starbucks Flagship", "Road 36 Jubilee", 17.4338, 78.4069],
-      ["Third Wave Coffee", "Sattva Knowledge City", 17.4340, 78.3830],
-      ["Blue Tokai Roasters", "Jubilee Hills", 17.4335, 78.4070]
+    const lg_gyms = L.layerGroup();
+    const gymOutlets = [
+      ["Cult.fit", "Group Fitness Studio", "Kondapur", "Above Karachi Bakery, Botanical Garden Rd", "Boxing, S&C, HRX", "6:00 AM - 10:00 PM", 17.4648, 78.3572],
+      ["Cult.fit", "Group Fitness Studio", "Madhapur", "Kavuri Hills Phase 1", "HIIT, Yoga, Turf", "6:00 AM - 10:00 PM", 17.442, 78.396],
+      ["Cult.fit", "Group Fitness Studio", "Gachibowli", "SLN Terminus, Kondapur Main Rd", "S&C, Boxing, Burn", "6:00 AM - 10:00 PM", 17.452, 78.3615],
+      ["Cult.fit", "Group Fitness Studio", "Jubilee Hills", "Road No. 36, Near Metro", "Signature Studio", "6:00 AM - 10:00 PM", 17.4338, 78.4069],
+      ["Cult.fit", "Group Fitness Studio", "Banjara Hills", "Road No. 12, Century Hospital", "HRX, S&C, Yoga", "6:00 AM - 10:00 PM", 17.415, 78.4335],
+      ["Gold's Gym", "Full Service Luxury Gym", "Banjara Hills", "Road No. 10", "Strength, Cardio, Steam", "6:00 AM - 10:00 PM", 17.4285, 78.414],
+      ["F45 Training", "Functional Training", "Jubilee Hills", "Road No. 36", "High-Intensity Functional", "6:00 AM - 9:00 PM", 17.4338, 78.4069]
     ];
-    coffeeData.forEach(cf => {
-      const p = `
-        <div class="k-popup-header"><span style="color:#e040fb;">Co-Tenancy Benchmark</span></div>
-        <div class="k-popup-body"><h4 style="color:#fff;">${cf[0]}</h4><p style="color:var(--kepler-text-dim);">${cf[1]}</p></div>`;
-      L.marker([cf[2], cf[3]], { icon: createKeplerMarker('#e040fb', 'fa-solid fa-mug-saucer') })
-        .bindPopup(p).addTo(lg_coffee);
+    gymOutlets.forEach(g => {
+      const popup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#0277bd;">${g[0]} (${g[2]})</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Amenities:</b> <span>${g[4]}</span></div>
+            <div class="kpi-row"><b>Timings:</b> <span>${g[5]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Address:</b> ${g[3]}</p>
+          </div>
+        </div>
+      `;
+      L.marker([g[6], g[7]], { icon: makeIcon('#0288d1', 'fa-solid fa-dumbbell') }).bindPopup(popup).addTo(lg_gyms);
     });
 
     // -------------------------------------------------------------
-    // GATED SOCIETIES & INDEXEDDB REPOSITORY
+    // LAYER 6: BAKERIES & PATISSERIES
     // -------------------------------------------------------------
-    let allSocieties = [
-      ["My Home Tridasa", "My Home", 5270, "1.2 - 2.15 Cr", 17.51678, 78.2953],
-      ["Prestige City Hyderabad", "Prestige", 4766, "85L - 3 Cr", 17.30632, 78.41754],
-      ["My Home Sayuk", "My Home", 3780, "1.4 - 2.5 Cr", 17.45914, 78.29661],
-      ["Aparna Zenon", "Aparna", 3668, "1.3 - 3.2 Cr", 17.41138, 78.35721],
-      ["Rajapushpa Provincia", "Rajapushpa", 3498, "1.4 - 2.7 Cr", 17.3954, 78.35505],
-      ["Urbanrise Cloud 33", "Urbanrise", 3395, "82L - 1.5 Cr", 17.53954, 78.35811],
-      ["Honer Signatis", "Honer", 3266, "1.5 - 3.4 Cr", 17.47406, 78.41369],
-      ["Prajay Megapolis", "Prajay", 3048, "1.5 Cr+", 17.48125, 78.38041],
-      ["Aparna Sarovar Zicon", "Aparna", 3024, "1.2 - 2.9 Cr", 17.46508, 78.31329],
-      ["My Home Avatar", "My Home", 2800, "1.5 - 2.6 Cr", 17.39878, 78.35549],
-      ["SMR Vinay Iconia", "SMR", 2500, "1.4 - 3.7 Cr", 17.46966, 78.33442],
-      ["Aparna Sarovar Zenith", "Aparna", 2477, "1.6 - 4.0 Cr", 17.46641, 78.31168],
-      ["Prestige High Fields", "Prestige", 2240, "1.6 - 4.9 Cr", 17.41341, 78.33945],
-      ["My Home Jewel", "My Home", 2016, "1.6 - 2.5 Cr", 17.49209, 78.33549],
-      ["My Home Vihanga", "My Home", 1996, "1.5 - 2.7 Cr", 17.43377, 78.33225],
-      ["My Home Mangala", "My Home", 1879, "1.7 - 2.8 Cr", 17.47484, 78.34721],
-      ["My Home Bhooja", "My Home", 1760, "5.8 - 10.5 Cr", 17.43091, 78.37728],
-      ["Aparna Serene Park", "Aparna", 1680, "1.6 - 2.7 Cr", 17.46404, 78.33748],
-      ["Vertex Viraat", "Vertex", 1428, "1.0 - 1.5 Cr", 17.50184, 78.36228],
-      ["Lanco Hills Apts", "Lanco", 1392, "1.7 - 4.5 Cr", 17.40989, 78.37532],
-      ["Risinia Skyon", "Risinia", 1347, "82L - 1.3 Cr", 17.54450, 78.37356],
-      ["My Home Apas", "My Home", 1338, "2.9 - 4.5 Cr", 17.40375, 78.32957],
-      ["Praneeth Antilia", "Praneeth", 600, "3.5 - 3.7 Cr", 17.54928, 78.36983],
-      ["SAS Crown", "SAS Infra", 276, "8.3 Cr+", 17.40209, 78.33856]
+    const lg_bakery = L.layerGroup();
+    const bakeryOutlets = [
+      ["Theobroma", "Brownies & Patisserie", "Jubilee Hills", "Road No. 36 Check Post", "Brownies, Croissants", "8:00 AM - 12:00 AM", 17.428, 78.412],
+      ["Theobroma", "Brownies & Patisserie", "Kondapur", "Sarath City Capital Mall", "Dense Loaf Cakes, Pastries", "10:00 AM - 11:00 PM", 17.4578, 78.3638],
+      ["Conçù", "Artisanal Patisserie", "Jubilee Hills", "Road No. 37", "European Pastries, Tiramisu", "10:00 AM - 11:00 PM", 17.435, 78.402],
+      ["Harley's Fine Baking", "European Patisserie", "Financial District", "Ivory Lounge, Nanakramguda", "Tres Leches, Cheesecakes", "9:00 AM - 11:00 PM", 17.4184, 78.3486],
+      ["Karachi Bakery", "Heritage Bakery & Café", "Banjara Hills", "Road No. 1", "Fruit Biscuits, Pastries", "9:00 AM - 11:00 PM", 17.4195, 78.4485]
     ];
+    bakeryOutlets.forEach(b => {
+      const popup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#880e4f;">${b[0]} (${b[2]})</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Offerings:</b> <span>${b[4]}</span></div>
+            <div class="kpi-row"><b>Timings:</b> <span>${b[5]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Address:</b> ${b[3]}</p>
+          </div>
+        </div>
+      `;
+      L.marker([b[6], b[7]], { icon: makeIcon('#ad1457', 'fa-solid fa-cookie-bite') }).bindPopup(popup).addTo(lg_bakery);
+    });
 
-    function renderSocieties(minUnits) {
-      markers_cluster.clearLayers();
-      let matchCount = 0;
+    // -------------------------------------------------------------
+    // LAYER 7: DESSERTS & SHAKES
+    // -------------------------------------------------------------
+    const lg_desserts = L.layerGroup();
+    const dessertOutlets = [
+      ["Cream Stone Concepts", "Cold-Stone Handcrafted Ice Cream", "Banjara Hills", "Road No. 2, Annapurna Studios", "Willy Wonka, Ferrero", "11:00 AM - 2:00 AM", 17.4225, 78.4312],
+      ["Cream Stone Concepts", "Cold-Stone Handcrafted Ice Cream", "Jubilee Hills", "Road No. 36 Check Post", "Fruit Exotica, Brownie", "11:00 AM - 2:00 AM", 17.428, 78.412],
+      ["The ThickShake Factory", "Gourmet Shakes & Bowls", "Kondapur", "Main Road", "Thickshakes, Fruit Bowls", "11:00 AM - 1:00 AM", 17.4648, 78.3572],
+      ["Naturals Ice Cream", "Natural Fresh Fruit Ice Cream", "Jubilee Hills", "Road No. 36", "Tender Coconut, Sitaphal", "11:00 AM - 12:00 AM", 17.4338, 78.4069]
+    ];
+    dessertOutlets.forEach(d => {
+      const popup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#e65100;">${d[0]} (${d[2]})</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Specialty:</b> <span>${d[4]}</span></div>
+            <div class="kpi-row"><b>Timings:</b> <span>${d[5]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Address:</b> ${d[3]}</p>
+          </div>
+        </div>
+      `;
+      L.marker([d[6], d[7]], { icon: makeIcon('#f57c00', 'fa-solid fa-ice-cream') }).bindPopup(popup).addTo(lg_desserts);
+    });
 
-      allSocieties.forEach(item => {
-        const [title, builder, units, price, lat, lon] = item;
-        if (units >= minUnits) {
-          matchCount++;
-          const popup = `
-            <div class="k-popup-header"><span style="color:#90a4ae;">Gated Asset</span></div>
-            <div class="k-popup-body">
-              <h4 style="color:#fff;">${title}</h4>
-              <div class="k-field">Developer: <b>${builder}</b></div>
-              <div class="k-field">Total Density: <b>${Number(units).toLocaleString()} Flats</b></div>
-              <div class="k-field">Ticket Size: <b>${price}</b></div>
-            </div>`;
+    // -------------------------------------------------------------
+    // LAYER 8: ORGANIC STORES & GOURMET
+    // -------------------------------------------------------------
+    const lg_organic = L.layerGroup();
+    const organicOutlets = [
+      ["Q-Mart Gourmet Supermarket", "Luxury Organic Supermarket", "Banjara Hills", "Road No. 2, Opp Park Hyatt", "Organic Produce, Imported Cheese", "8:00 AM - 10:30 PM", 17.4225, 78.4312],
+      ["Q-Mart Gourmet Supermarket", "Luxury Organic Supermarket", "Gachibowli", "Financial District, Nanakramguda", "A2 Milk, Hydroponic Greens", "8:00 AM - 10:30 PM", 17.4184, 78.3486],
+      ["24 Mantra Organic", "Certified Organic Superstore", "Banjara Hills", "Road No. 12, MLA Colony", "Cold-pressed oils, Millets", "8:30 AM - 9:30 PM", 17.415, 78.4335],
+      ["24 Mantra Organic", "Certified Organic Superstore", "Jubilee Hills", "Road No. 36", "Organic pantry, Herbal teas", "8:30 AM - 9:30 PM", 17.4338, 78.4069]
+    ];
+    organicOutlets.forEach(o => {
+      const popup = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#4a148c;">${o[0]} (${o[2]})</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Specialties:</b> <span>${o[4]}</span></div>
+            <div class="kpi-row"><b>Timings:</b> <span>${o[5]}</span></div>
+            <p style="margin-top:5px; font-size:11px; color:#555;"><b>Address:</b> ${o[3]}</p>
+          </div>
+        </div>
+      `;
+      L.marker([o[6], o[7]], { icon: makeIcon('#6a1b9a', 'fa-solid fa-basket-shopping') }).bindPopup(popup).addTo(lg_organic);
+    });
 
-          const marker = L.circleMarker([lat, lon], {
-            radius: units >= 2000 ? 6 : 4,
-            fillColor: units >= 2000 ? '#00e5ff' : '#607d8b',
-            color: '#fff',
-            weight: 0.5,
-            fillOpacity: 0.85
-          }).bindPopup(popup);
+    // -------------------------------------------------------------
+    // LAYER 9: GATED APARTMENTS (CLUSTER ENGINE WITH INSTANT EXCEL PARSER)
+    // -------------------------------------------------------------
+    const markers_cluster = L.markerClusterGroup({
+      chunkedLoading: true, maxClusterRadius: 40, spiderfyOnMaxZoom: true, showCoverageOnHover: false
+    });
 
-          markers_cluster.addLayer(marker);
-        }
-      });
-      document.getElementById('metric-soc-count').innerText = matchCount.toLocaleString();
+    function addApartmentToMap(title, builder, units, price, loc, lat, lon) {
+      if (!lat || !lon || isNaN(lat) || isNaN(lon)) return;
+      const popupHtml = `
+        <div class="popup-box">
+          <div class="popup-header" style="background:#263238;">${title}</div>
+          <div class="popup-content">
+            <div class="kpi-row"><b>Developer:</b> <span>${builder || 'N/A'}</span></div>
+            <div class="kpi-row"><b>Total Units:</b> <span>${units > 0 ? Number(units).toLocaleString() + ' flats' : 'Residential'}</span></div>
+            <div class="kpi-row"><b>Price:</b> <span>${price || 'N/A'}</span></div>
+            <div class="kpi-row"><b>Pincode / Area:</b> <span>${loc || ''}</span></div>
+            <p style="margin-top:5px; font-size:10.5px; color:#555;">Gate delivery hub on Swiggy/Zomato; morning fitness & evening beverage catchment.</p>
+          </div>
+        </div>
+      `;
+      const marker = L.circleMarker([lat, lon], {
+        radius: units >= 1000 ? 7 : (units >= 250 ? 5 : 4),
+        fillColor: units >= 1000 ? "#b71c1c" : (units >= 300 ? "#e65100" : "#455a64"),
+        color: "#ffffff", weight: 1, opacity: 1, fillOpacity: 0.85
+      }).bindPopup(popupHtml);
+      markers_cluster.addLayer(marker);
     }
 
-    renderSocieties(0);
-
-    // -------------------------------------------------------------
-    // CONTROLS & INTERACTION LISTENERS
-    // -------------------------------------------------------------
-    document.getElementById('filter-units').addEventListener('input', (e) => {
-      const val = parseInt(e.target.value);
-      document.getElementById('units-val').innerText = val.toLocaleString();
-      renderSocieties(val);
+    // Pre-populate Top 100 Landmark Societies out of the box
+    const topLandmarks = [
+      ["My Home Tridasa", "My Home Constructions", 5270, "1.2 - 2.15 Cr", "Tellapur / RC Puram", 17.51678, 78.2953],
+      ["The Prestige City Hyderabad", "Prestige Group", 4766, "84.88 L - 2.99 Cr", "Rajendranagar", 17.30632, 78.41754],
+      ["My Home Sayuk", "My Home Constructions", 3780, "1.4 - 2.5 Cr", "Tellapur", 17.45914, 78.29661],
+      ["Aparna Zenon", "Aparna Constructions", 3668, "1.33 - 3.2 Cr", "Puppalguda", 17.41138, 78.35721],
+      ["Rajapushpa Provincia", "Rajapushpa Properties", 3498, "1.39 - 2.7 Cr", "Narsingi", 17.3954, 78.35505],
+      ["Urbanrise on Cloud 33", "Urbanrise", 3395, "82.41 L - 1.52 Cr", "Bachupally", 17.53954, 78.35811],
+      ["Honer Signatis", "Honer Developers", 3266, "1.46 - 3.38 Cr", "Kukatpally", 17.47406, 78.41369],
+      ["Prajay Megapolis", "Prajay Builders", 3048, "1.5 Cr+", "KPHB", 17.48125, 78.38041],
+      ["Aparna Sarovar Zicon", "Aparna Constructions", 3024, "1.25 - 2.9 Cr", "Nallagandla", 17.46508, 78.31329],
+      ["My Home Avatar", "My Home Constructions", 2800, "1.5 - 2.6 Cr", "Puppalguda", 17.39878, 78.35549],
+      ["SMR Vinay Iconia", "SMR Holdings", 2500, "1.41 - 3.73 Cr", "Kondapur", 17.46966, 78.33442],
+      ["Rainbow Vistas @ RockGarden", "Cybercity Builders", 2500, "1.12 - 3.45 Cr", "Moosapet", 17.46776, 78.40815],
+      ["Aparna Sarovar Zenith", "Aparna Constructions", 2477, "1.65 - 3.99 Cr", "Nallagandla", 17.46641, 78.31168],
+      ["Prestige High Fields", "Prestige Group", 2240, "1.65 - 4.9 Cr", "Nanakramguda", 17.41341, 78.33945],
+      ["My Home Jewel", "My Home Constructions", 2016, "1.6 - 2.5 Cr", "Madinaguda", 17.49209, 78.33549],
+      ["My Home Vihanga", "My Home Constructions", 1996, "1.48 - 2.7 Cr", "Gachibowli ISB", 17.43377, 78.33225],
+      ["My Home Mangala", "My Home Constructions", 1879, "1.71 - 2.82 Cr", "Kondapur", 17.47484, 78.34721],
+      ["My Home Bhooja", "My Home Constructions", 1760, "5.8 - 10.5 Cr", "Raidurg", 17.43091, 78.37728],
+      ["Aparna Serene Park", "Aparna Constructions", 1680, "1.6 - 2.7 Cr", "Kondapur", 17.46404, 78.33748],
+      ["Vertex Viraat", "Vertex Homes", 1428, "1.02 - 1.54 Cr", "Miyapur", 17.50184, 78.36228],
+      ["Lanco Hills Apartments", "Lanco Hills", 1392, "1.7 - 4.5 Cr", "Manikonda", 17.40989, 78.37532],
+      ["Risinia Skyon", "Risinia Builders", 1347, "81.95 L - 1.32 Cr", "Bachupally", 17.5445, 78.37356],
+      ["My Home Apas", "My Home Constructions", 1338, "2.9 - 4.5 Cr", "Kokapet", 17.40375, 78.32957],
+      ["Praneeth APR Pranav Antilia", "Praneeth Group", 600, "3.5 - 3.7 Cr (Villas)", "Bachupally", 17.54928, 78.36983],
+      ["SAS Crown", "SAS Infra", 276, "8.27 Cr (58 Floors)", "Kokapet", 17.40209, 78.33856]
+    ];
+    topLandmarks.forEach(item => {
+      addApartmentToMap(item[0], item[1], item[2], item[3], item[4], item[5], item[6]);
     });
 
-    document.getElementById('filter-heat').addEventListener('input', (e) => {
-      const val = parseInt(e.target.value);
-      document.getElementById('heat-val').innerText = `${val}px`;
-      heatLayer.setOptions({ radius: val });
-    });
+    // Excel Drag & Drop Handler (Reads all rows from Untitled spreadsheet.xlsx)
+    const fileInput = document.getElementById('excel-input');
+    const statusText = document.getElementById('upload-status');
 
-    // Layer switch bindings
-    document.getElementById('layer-launch').addEventListener('change', e => e.target.checked ? map.addLayer(lg_launch) : map.removeLayer(lg_launch));
-    document.getElementById('layer-heat').addEventListener('change', e => e.target.checked ? map.addLayer(heatLayer) : map.removeLayer(heatLayer));
-    document.getElementById('layer-corp').addEventListener('change', e => e.target.checked ? map.addLayer(lg_corp) : map.removeLayer(lg_corp));
-    document.getElementById('layer-gyms').addEventListener('change', e => e.target.checked ? map.addLayer(lg_gyms) : map.removeLayer(lg_gyms));
-    document.getElementById('layer-coffee').addEventListener('change', e => e.target.checked ? map.addLayer(lg_coffee) : map.removeLayer(lg_coffee));
-    document.getElementById('layer-societies').addEventListener('change', e => e.target.checked ? map.addLayer(markers_cluster) : map.removeLayer(markers_cluster));
+    try {
+      const cached = localStorage.getItem('hyderabad_apts_cached');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        markers_cluster.clearLayers();
+        parsed.forEach(item => addApartmentToMap(item[0], item[1], item[2], item[3], item[4], item[5], item[6]));
+        statusText.innerHTML = `✅ <b>${parsed.length.toLocaleString()} Societies Active</b> (Cached)`;
+      }
+    } catch(e) {}
 
-    // -------------------------------------------------------------
-    // INDEXEDDB RESILIENT INGESTION ENGINE
-    // -------------------------------------------------------------
-    const DB_NAME = "BeingJuiceKeplerDB";
-    let db;
-    const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = (e) => {
-      e.target.result.createObjectStore("societies", { keyPath: "id", autoIncrement: true });
-    };
-    req.onsuccess = (e) => {
-      db = e.target.result;
-      const tx = db.transaction("societies", "readonly");
-      const store = tx.objectStore("societies");
-      const getReq = store.getAll();
-      getReq.onsuccess = () => {
-        if (getReq.result && getReq.result.length > 0) {
-          allSocieties = getReq.result.map(d => [d.title, d.builder, d.units, d.price, d.lat, d.lon]);
-          renderSocieties(parseInt(document.getElementById('filter-units').value));
-          document.getElementById('idb-status').innerHTML = `✅ ${getReq.result.length.toLocaleString()} Societies active in IndexedDB`;
-        }
-      };
-    };
-
-    document.getElementById('excel-upload').addEventListener('change', (e) => {
+    fileInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
-      document.getElementById('idb-status').innerText = "Parsing records into IndexedDB...";
-
+      statusText.innerText = "⏳ Parsing all rows from Excel...";
+      
       const reader = new FileReader();
-      reader.onload = (evt) => {
+      reader.onload = function(evt) {
         try {
-          const workbook = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' });
-          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-          const parsed = [];
-
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet);
+          
+          markers_cluster.clearLayers();
+          const cleanApts = [];
+          
           rows.forEach(r => {
             const lat = parseFloat(r['Latitude']);
             const lon = parseFloat(r['Longitude']);
             if (lat >= 17.15 && lat <= 17.65 && lon >= 78.15 && lon <= 78.70) {
-              parsed.push({
-                title: (r['Project_Title'] || '').trim(),
-                builder: (r['Builder_Name'] || '').trim(),
-                units: parseInt(r['Unit_count']) || 0,
-                price: (r['Price'] || 'N/A').toString().trim(),
-                lat: lat,
-                lon: lon
-              });
+              const title = (r['Project_Title'] || '').toString().trim();
+              const builder = (r['Builder_Name'] || '').toString().trim();
+              const units = parseInt(r['Unit_count']) || 0;
+              const price = (r['Price'] || 'N/A').toString().trim();
+              const loc = (r['Pincode Name'] || '').toString().trim();
+              
+              cleanApts.push([title, builder, units, price, loc, lat, lon]);
+              addApartmentToMap(title, builder, units, price, loc, lat, lon);
             }
           });
 
-          if (db) {
-            const tx = db.transaction("societies", "readwrite");
-            const store = tx.objectStore("societies");
-            store.clear().onsuccess = () => {
-              parsed.forEach(item => store.add(item));
-            };
-            tx.oncomplete = () => {
-              allSocieties = parsed.map(d => [d.title, d.builder, d.units, d.price, d.lat, d.lon]);
-              renderSocieties(parseInt(document.getElementById('filter-units').value));
-              document.getElementById('idb-status').innerHTML = `✅ Ingested ${parsed.length.toLocaleString()} records!`;
-            };
-          }
-        } catch (err) {
-          document.getElementById('idb-status').innerText = `Error: ${err.message}`;
+          try {
+            localStorage.setItem('hyderabad_apts_cached', JSON.stringify(cleanApts));
+          } catch(err) {}
+
+          statusText.innerHTML = `✅ <b>${cleanApts.length.toLocaleString()} Societies Plotted!</b>`;
+        } catch(err) {
+          statusText.innerHTML = `<span style="color:#d32f2f;">❌ Error: ${err.message}</span>`;
         }
       };
       reader.readAsArrayBuffer(file);
     });
+
+    // -------------------------------------------------------------
+    // DEFAULT ACTIVATED LAYERS
+    // -------------------------------------------------------------
+    lg_50m_circles.addTo(map);
+    lg_remapped_heat.addTo(map);
+    lg_corp.addTo(map);
+    lg_coffee.addTo(map);
+    lg_gyms.addTo(map);
+    lg_bakery.addTo(map);
+    lg_desserts.addTo(map);
+    lg_organic.addTo(map);
+    markers_cluster.addTo(map);
+
+    // -------------------------------------------------------------
+    // LAYER CONTROLLER (USER TOGGLE BOX)
+    // -------------------------------------------------------------
+    const overlays = {
+      "🎯 50m Micro-Launch Circles": lg_50m_circles,
+      "🔥 Remapped Composite Heatmap": lg_remapped_heat,
+      "💼 Corporate (>₹12 LPA CTC)": lg_corp,
+      "☕ Specialty Coffee & Roasters": lg_coffee,
+      "🏋️ Cult.fit & Gold's Gyms": lg_gyms,
+      "🥐 Bakeries & Patisseries": lg_bakery,
+      "🍨 Desserts & Shakes": lg_desserts,
+      "🥗 Organic Stores & Gourmet": lg_organic,
+      "🏢 Gated Societies Cluster": markers_cluster
+    };
+
+    L.control.layers(null, overlays, { collapsed: false, position: 'topright' }).addTo(map);
   </script>
 </body>
 </html>
