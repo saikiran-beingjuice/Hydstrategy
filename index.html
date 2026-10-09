@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Being Juice — Hyderabad Precision Network GIS (AOV ₹250+ Master)</title>
 
-  <!-- Leaflet CSS & Core CDN Plugins -->
+  <!-- Leaflet CSS & Plugins -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
@@ -13,7 +13,7 @@
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body, html { height: 100%; width: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; overflow: hidden; }
+    body, html { height: 100%; width: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; overflow: hidden; }
     #map { height: 100vh; width: 100vw; position: absolute; top: 0; left: 0; z-index: 1; }
 
     /* Studio Control Sidebar */
@@ -26,7 +26,7 @@
       backdrop-filter: blur(12px);
       padding: 16px;
       border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+      box-shadow: 0 10px 35px rgba(0,0,0,0.38);
       border-left: 6px solid #2e7d32;
       width: 440px;
       max-height: 94vh;
@@ -36,7 +36,7 @@
     .studio-panel::-webkit-scrollbar-thumb { background: #b0bec5; border-radius: 4px; }
 
     .header-tag { display: inline-block; font-size: 10px; font-weight: 800; background: #e8f5e9; color: #1b5e20; padding: 3px 8px; border-radius: 4px; margin-bottom: 6px; letter-spacing: 0.5px; }
-    .studio-panel h1 { font-size: 16.5px; color: #1b5e20; font-weight: 800; margin-bottom: 3px; }
+    .studio-panel h1 { font-size: 16px; color: #1b5e20; font-weight: 800; margin-bottom: 2px; }
     .studio-panel p.sub { font-size: 11px; color: #555; line-height: 1.4; margin-bottom: 12px; }
 
     /* Navigation Tabs */
@@ -47,27 +47,28 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* Filter & Slider Components */
+    /* Range and Filtering Controls */
     .ctrl-group { margin-bottom: 11px; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #e9ecef; }
     .ctrl-label { display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 700; color: #333; margin-bottom: 5px; }
     .ctrl-label span.val { color: #2e7d32; font-weight: 800; }
     input[type=range] { width: 100%; accent-color: #2e7d32; cursor: pointer; }
 
-    /* Form Controls */
+    /* Form Inputs */
     .form-group { margin-bottom: 10px; }
     .form-group label { display: block; font-size: 11px; font-weight: 700; color: #333; margin-bottom: 4px; }
     .form-group input, .form-group textarea, .form-group select {
       width: 100%; padding: 7px 9px; font-size: 11px; border: 1px solid #ccc; border-radius: 5px; font-family: inherit;
     }
-    .form-group textarea { height: 90px; resize: vertical; font-family: monospace; }
+    .form-group textarea { height: 90px; resize: vertical; font-family: monospace; font-size: 10.5px; }
     .btn-submit {
       width: 100%; padding: 9px; background: #2e7d32; color: #fff; border: none; border-radius: 6px;
       font-size: 11.5px; font-weight: 700; cursor: pointer; transition: background 0.2s ease;
     }
     .btn-submit:hover { background: #1b5e20; }
 
-    /* Ingestion list */
+    /* Upload Rows */
     .upload-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; }
+    .upload-row:last-child { border-bottom: none; }
     .upload-label { font-size: 11px; font-weight: 600; color: #333; display: flex; align-items: center; gap: 6px; }
     .mini-file-btn { background: #2e7d32; color: #fff; padding: 4px 9px; border-radius: 4px; font-size: 10px; font-weight: 700; cursor: pointer; }
     .mini-file-btn:hover { background: #1b5e20; }
@@ -112,11 +113,10 @@
 </head>
 <body>
 
-  <!-- Floating Master Studio -->
   <div class="studio-panel">
-    <div class="header-tag">AOV ₹250+ EXPANSION GIS</div>
+    <div class="header-tag">AOV ₹250+ MASTER EXPANSION GIS</div>
     <h1>Being Juice — Strategy Studio</h1>
-    <p class="sub">Precision footprint mapping across Hyderabad's affluent coffee roasters, fast-casual chains, and luxury dessert clusters.</p>
+    <p class="sub">Complete audited directory of Hyderabad's high-ticket beverage, specialty coffee, artisanal patisserie, fast-casual and tech corridors.</p>
 
     <div class="tab-nav">
       <button id="btn-tab-ranges" class="tab-btn active" onclick="switchTab('tab-ranges')">🎚️ Filters</button>
@@ -133,21 +133,21 @@
           <span class="val" id="val-radius">50 meters</span>
         </div>
         <input type="range" id="range-radius" min="25" max="350" step="25" value="50" oninput="updateCircleRadius(this.value)" />
-        <span style="font-size: 10px; color:#777;">50m: Walk-by counter dwell | 150m: High-street precinct | 300m: Hyperlocal run</span>
+        <span style="font-size: 10px; color:#777;">50m: Pedestrian walk-by dwell | 150m: Precinct corridor | 300m: Hyperlocal delivery radius</span>
       </div>
 
       <div class="ctrl-group">
         <div class="ctrl-label">
-          <span>Min Gated Units (Density Cutoff):</span>
+          <span>Min Gated Units (Density Threshold):</span>
           <span class="val" id="val-units">≥ 0 flats</span>
         </div>
         <input type="range" id="range-units" min="0" max="3500" step="250" value="0" oninput="filterApartmentsByUnits(this.value)" />
-        <span style="font-size: 10px; color:#777;">Slide to 1,000+ flats to highlight high-density mega-societies.</span>
+        <span style="font-size: 10px; color:#777;">Slide to 1,000+ flats to spotlight mega gated townships.</span>
       </div>
 
       <div class="ctrl-group">
         <div class="ctrl-label">
-          <span>Composite Heatmap Spread:</span>
+          <span>Composite Heatmap Dispersion:</span>
           <span class="val" id="val-heat">35px</span>
         </div>
         <input type="range" id="range-heat" min="15" max="60" step="5" value="35" oninput="updateHeatmapBlur(this.value)" />
@@ -167,7 +167,7 @@
           <select id="new-layer-icon" style="flex:1;">
             <option value="fa-mug-hot">Coffee / Cup (fa-mug-hot)</option>
             <option value="fa-utensils">Food / QSR (fa-utensils)</option>
-            <option value="fa-burger">Burger / Fast Food (fa-burger)</option>
+            <option value="fa-burger">Burger / Sub (fa-burger)</option>
             <option value="fa-cookie-bite">Bakery (fa-cookie-bite)</option>
             <option value="fa-dumbbell">Fitness (fa-dumbbell)</option>
             <option value="fa-store">Retail Outlet (fa-store)</option>
@@ -176,7 +176,7 @@
       </div>
       <div class="form-group">
         <label>Paste Outlets (Format: <code>Name, Lat, Lon, Location</code>):</label>
-        <textarea id="new-layer-data" placeholder="Outlet 1, 17.4338, 78.4069, Road 36 Jubilee&#10;Outlet 2, 17.4225, 78.4312, Road 2 Banjara"></textarea>
+        <textarea id="new-layer-data" placeholder="Boba Bhai - Road 36, 17.4338, 78.4069, Jubilee Hills&#10;Boba Bhai - Knowledge City, 17.4342, 78.3828, Madhapur"></textarea>
       </div>
       <button class="btn-submit" onclick="createCustomMapLayer()"><i class="fa-solid fa-layer-group"></i> Create & Add Layer to Map</button>
       <div id="create-feedback" style="margin-top:8px; font-size:11px; font-weight:700; color:#2e7d32;"></div>
@@ -184,7 +184,7 @@
 
     <!-- TAB 3: FILE INGESTION (EXCEL / CSV) -->
     <div id="tab-upload" class="tab-content">
-      <p style="font-size: 10.5px; color:#555; margin-bottom: 8px;">Upload `.xlsx` or `.csv` sheets directly into categories. Column auto-mapping supported.</p>
+      <p style="font-size: 10.5px; color:#555; margin-bottom: 8px;">Upload `.xlsx` or `.csv` spreadsheets directly. Columns are automatically mapped and normalized.</p>
       
       <div class="upload-row">
         <span class="upload-label"><i class="fa-solid fa-mug-hot" style="color:#00796b;"></i> Specialty Coffee & Roasters</span>
@@ -215,7 +215,7 @@
 
     <!-- TAB 4: SIMULATOR -->
     <div id="tab-simulator" class="tab-content">
-      <p style="font-size: 11px; color:#444; margin-bottom: 10px;">Activate simulator, then <b>click anywhere on the map</b> to drop a prospective Being Juice kiosk and calculate its immediate competitive basket.</p>
+      <p style="font-size: 11px; color:#444; margin-bottom: 10px;">Activate simulator mode, then <b>click anywhere on Hyderabad's road grid</b> to drop a prospective Being Juice kiosk and compute immediate catchment competition.</p>
       <button id="sim-toggle-btn" onclick="toggleSimMode()" style="width: 100%; padding: 10px; font-size: 11.5px; font-weight: 700; background: #00796b; color: #fff; border: none; border-radius: 6px; cursor: pointer;">
         🚀 Enable Drop-Pin Simulation
       </button>
@@ -241,16 +241,12 @@
 
   <div id="map"></div>
 
-  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <script>
-    // -------------------------------------------------------------
-    // INITIALIZATION & MAP SETUP
-    // -------------------------------------------------------------
     const map = L.map('map', {
       center: [17.4350, 78.3850],
       zoom: 12,
@@ -281,35 +277,30 @@
       if (activeBtn) activeBtn.classList.add('active');
     }
 
-    // -------------------------------------------------------------
-    // CORE LAYER CONTAINERS
-    // -------------------------------------------------------------
+    // Master layer definitions
     const lg_50m_circles = L.layerGroup();
-    const lg_blue_tokai = L.layerGroup();
     const lg_starbucks = L.layerGroup();
     const lg_third_wave = L.layerGroup();
+    const lg_blue_tokai = L.layerGroup();
     const lg_true_black = L.layerGroup();
-    const lg_ccd = L.layerGroup();
-    const lg_roastery = L.layerGroup();
     const lg_california_burrito = L.layerGroup();
-    const lg_subway = L.layerGroup();
-    const lg_mcdonalds = L.layerGroup();
     const lg_concu = L.layerGroup();
     const lg_labonel = L.layerGroup();
     const lg_harleys = L.layerGroup();
     const lg_theobroma = L.layerGroup();
+    const lg_ccd = L.layerGroup();
     const lg_karachi = L.layerGroup();
     const lg_cult = L.layerGroup();
+    const lg_mcdonalds = L.layerGroup();
+    const lg_subway = L.layerGroup();
+    const lg_roastery = L.layerGroup();
     const lg_corp = L.layerGroup();
     const markers_cluster = L.markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 40 });
 
     let activeCircleRadius = 50;
     let allApartmentRecords = [];
-    const allOutletsRegistry = []; // Aggregated for instant proximity math
+    const allOutletsRegistry = [];
 
-    // -------------------------------------------------------------
-    // LAUNCH SITES (BEING JUICE SPECIFIC)
-    // -------------------------------------------------------------
     const circlesConfig = [
       { id: "SITE-01", name: "Sattva Knowledge City Concourse", lat: 17.43415, lon: 78.38240, format: "Micro Kiosk (80–100 sq ft)", cups: "70–105 cups/day", rent: "₹35k–₹55k + 12% rev", primary: "ServiceNow, Qualcomm, Cult.fit, Third Wave, Starbucks" },
       { id: "SITE-02", name: "Jubilee Hills Rd 36 Peddamma Nexus", lat: 17.43378, lon: 78.40712, format: "Walk-in Counter (300–450 sq ft)", cups: "80–120 cups/day", rent: "₹1.5L–₹2.2L fixed", primary: "Cult Signature, F45, Blue Tokai, Conçù, Starbucks Flagship" },
@@ -318,164 +309,150 @@
       { id: "SITE-05", name: "Kondapur Botanical Garden Nexus", lat: 17.46475, lon: 78.35718, format: "Fitness / Delivery Counter", cups: "60–90 cups/day", rent: "₹60k–₹85k lease", primary: "Cult.fit Kondapur, Karachi Bakery, Theobroma, California Burrito" }
     ];
 
-    // -------------------------------------------------------------
-    // MASTER DIRECTORY DATA (COMPREHENSIVE RESEARCH DIRECTORY)
-    // -------------------------------------------------------------
-
-    // 1. Blue Tokai Coffee Roasters (AOV: ₹350 - ₹500)
-    const blueTokaiOutlets = [
-      ["Blue Tokai - Jubilee Hills", "Plot 1299, Road No. 36, Near Check Post", 17.4335, 78.4070],
-      ["Blue Tokai - Banjara Hills", "Road No. 10, Near Star Hospitals Lane", 17.4278, 78.4135],
-      ["Blue Tokai - Sattva Knowledge City", "Food Concourse, Level 1, Madhapur", 17.4342, 78.3828],
-      ["Blue Tokai - Gachibowli Financial Dist", "Ground Floor, Waverock SEZ", 17.4173, 78.3422],
-      ["Blue Tokai - Inorbit Mall", "Ground Floor, Mindspace, Madhapur", 17.4358, 78.3878],
-      ["Blue Tokai - Sarath City Capital Mall", "Lower Ground Floor, Kondapur", 17.4575, 78.3639],
-      ["Blue Tokai - Kokapet", "Near One Golden Mile, Financial Corridor", 17.4042, 78.3312],
-      ["Blue Tokai - Begumpet", "Near Country Club, Old Airport Rd", 17.4485, 78.4590]
-    ];
-
-    // 2. Starbucks Coffee (AOV: ₹380 - ₹550)
     const starbucksOutlets = [
       ["Starbucks - Jubilee Hills Flagship", "Plot 1299, Road No. 36", 17.4338, 78.4069],
-      ["Starbucks - Banjara Hills Rd 12", "Century Super Speciality Hospital Rd", 17.4148, 78.4332],
-      ["Starbucks - Banjara Hills Rd 2", "Near Annapurna Studios, Opp Park Hyatt", 17.4225, 78.4312],
-      ["Starbucks - Sattva Knowledge City", "Phoenix Centrance Concourse, Madhapur", 17.4344, 78.3828],
-      ["Starbucks - Raheja Mindspace", "Building No. 12A, Madhapur", 17.4385, 78.3805],
+      ["Starbucks - Jubilee Hills Rd 92", "Road No. 92, Opp. Apollo Cradle", 17.4208, 78.4162],
+      ["Starbucks - Banjara Hills Rd 12", "Fortune Monarch Mall, Rd 12", 17.4148, 78.4332],
+      ["Starbucks - Banjara Hills Rd 2", "Near Annapurna Studios / Park Hyatt Foyer", 17.4225, 78.4312],
+      ["Starbucks - Sattva Knowledge City", "Phoenix Centrance Piazza, Madhapur", 17.4344, 78.3828],
+      ["Starbucks - Raheja Mindspace", "Building No. 12A, Mindspace IT Park", 17.4385, 78.3805],
+      ["Starbucks - Inorbit Mall", "Ground Floor Outer Promenade, HITEC City", 17.4360, 78.3875],
       ["Starbucks - Financial District One West", "One West Galleria, Nanakramguda", 17.4171, 78.3491],
-      ["Starbucks - Inorbit Mall", "Ground Floor Piazza, HITEC City", 17.4360, 78.3875],
-      ["Starbucks - Sarath City Mall", "Ground Floor, Gachibowli-Miyapur Rd", 17.4578, 78.3640],
-      ["Starbucks - Nexus Hyderabad (Forum)", "Kukatpally Housing Board Colony", 17.4842, 78.3885],
+      ["Starbucks - Waverock SEZ", "TSIIC SEZ Phase 2, Financial District", 17.4174, 78.3423],
       ["Starbucks - Gachibowli SLN Terminus", "SLN Terminus Mall, Jayabheri Enclave", 17.4522, 78.3618],
-      ["Starbucks - Begumpet Somajiguda", "Somajiguda Circle, Opp Villa Marie", 17.4290, 78.4552],
+      ["Starbucks - Sarath City Capital Mall", "Ground Floor Outer Promenade, Kondapur", 17.4578, 78.3640],
+      ["Starbucks - Nexus Mall Kukatpally", "Nexus Hyderabad (Forum), KPHB Colony", 17.4842, 78.3885],
+      ["Starbucks - Somajiguda", "Raj Bhavan Road, Somajiguda Circle", 17.4290, 78.4552],
+      ["Starbucks - Himayatnagar", "Liberty Road / Street No. 3 Junction", 17.3995, 78.4842],
       ["Starbucks - Secunderabad Sindhi Colony", "Sindhi Colony Main Road, PG Road", 17.4428, 78.4870],
-      ["Starbucks - RGIA Airport Departure", "Rajiv Gandhi International Airport, Shamshabad", 17.2403, 78.4294]
+      ["Starbucks - Secunderabad SD Road", "Sarojini Devi Road, Clock Tower", 17.4398, 78.4981],
+      ["Starbucks - Kompally", "Near Cineplanet, Suchitra / Kompally Highway", 17.5348, 78.4880],
+      ["Starbucks - RGIA Airport Arrivals", "Aeroplaza, Public Arrival Plaza, Shamshabad", 17.2412, 78.4305],
+      ["Starbucks - RGIA Airport Departures", "Domestic Security Hold Area (Airside)", 17.2403, 78.4294]
     ];
 
-    // 3. Third Wave Coffee (AOV: ₹320 - ₹480)
     const thirdWaveOutlets = [
-      ["Third Wave Coffee - Knowledge City", "Central Lawn, Sattva Knowledge City", 17.4340, 78.3830],
+      ["Third Wave Coffee - Sattva Knowledge City", "Central Lawn, Knowledge City, Madhapur", 17.4340, 78.3830],
       ["Third Wave Coffee - Jubilee Hills Rd 36", "Road No. 36, Metro Pillar 1667", 17.4320, 78.4080],
-      ["Third Wave Coffee - Jubilee Hills Rd 45", "Road No. 45, Near Heart Cup Coffee", 17.4312, 78.4115],
+      ["Third Wave Coffee - Jubilee Hills Phase 3", "Road No. 45, Near Heart Cup Coffee", 17.4312, 78.4115],
       ["Third Wave Coffee - Banjara Hills Rd 12", "MLA Colony, Road No. 12", 17.4165, 78.4310],
-      ["Third Wave Coffee - Gachibowli", "Vinayak Nagar, Opp Botanical Garden Rd", 17.4540, 78.3605],
+      ["Third Wave Coffee - Kondapur Glacier Bldg", "Opp Google / Botanical Garden Road", 17.4625, 78.3650],
+      ["Third Wave Coffee - Gachibowli The Platina", "The Platina, Jayabheri Enclave", 17.4495, 78.3620],
+      ["Third Wave Coffee - Inorbit Mall", "Ground Floor Outer Promenade, Madhapur", 17.4362, 78.3872],
+      ["Third Wave Coffee - Khajaguda / Oakridge", "Khajaguda Main Road, Near Oakridge School", 17.4120, 78.3685],
+      ["Third Wave Coffee - Himayatnagar", "Main Road, Beside Yes Bank", 17.4015, 78.4830],
+      ["Third Wave Coffee - Film Nagar OU Colony", "Shaikpet Main Road / Film Nagar Nexus", 17.4095, 78.3980],
+      ["Third Wave Coffee - Sainikpuri / Vayupuri", "Defiance Colony / Vayupuri Junction", 17.4885, 78.5460],
       ["Third Wave Coffee - Financial District", "Waverock Galleria, Nanakramguda", 17.4175, 78.3425],
-      ["Third Wave Coffee - Madhapur 100ft Rd", "Ayyappa Society Main Road", 17.4475, 78.3880],
-      ["Third Wave Coffee - Sarath City Mall", "Upper Ground Floor, Kondapur", 17.4572, 78.3635],
-      ["Third Wave Coffee - Kokapet Greens", "Near Gandipet Main Road", 17.4060, 78.3305]
+      ["Third Wave Coffee - RGIA Airport", "Departure Terminal Concourse, Shamshabad", 17.2408, 78.4298]
     ];
 
-    // 4. True Black Specialty Coffee (AOV: ₹350 - ₹550)
+    const blueTokaiOutlets = [
+      ["Blue Tokai - Jubilee Hills Rd 36", "Plot 1299, Road No. 36, Near Check Post", 17.4335, 78.4070],
+      ["Blue Tokai - Banjara Hills Rd 10", "Road No. 10, Near Star Hospitals Lane", 17.4278, 78.4135],
+      ["Blue Tokai - Sattva Knowledge City", "Food Concourse, Level 1, Madhapur", 17.4342, 78.3828],
+      ["Blue Tokai - Gachibowli Old Mumbai Hwy", "Near ORR Junction, Gachibowli", 17.4420, 78.3565],
+      ["Blue Tokai - Inorbit Mall", "Ground Floor, Mindspace, Madhapur", 17.4358, 78.3878],
+      ["Blue Tokai - Sarath City Capital Mall", "Lower Ground Floor, Kondapur", 17.4575, 78.3639],
+      ["Blue Tokai - Lanco Hills / Divyasree", "Tech Ridge, Khajaguda-Manikonda Spine", 17.4110, 78.3740],
+      ["Blue Tokai - Kokapet Golden Mile", "Near One Golden Mile Commercial Center", 17.4042, 78.3312],
+      ["Blue Tokai - Begumpet", "Near Country Club, Old Airport Rd", 17.4485, 78.4590],
+      ["Blue Tokai - Financial District Waverock", "Ground Floor, Waverock SEZ, Nanakramguda", 17.4173, 78.3422]
+    ];
+
     const trueBlackOutlets = [
-      ["True Black Coffee - Jubilee Hills", "Plot 247, Road No. 78, Jubilee Hills", 17.4325, 78.4022],
-      ["True Black Coffee - Film Nagar", "Road No. 1, Film Nagar Cultural Center Lane", 17.4190, 78.4110],
-      ["True Black Coffee - Knowledge City Kiosk", "Commerzone Tower 2 Concourse", 17.4305, 78.3820]
+      ["True Black - Jubilee Hills Rd 78", "Plot 247, Road No. 78, Jubilee Hills", 17.4325, 78.4022],
+      ["True Black - Film Nagar Cultural Center", "Road No. 1, Film Nagar Cultural Center Lane", 17.4190, 78.4110],
+      ["True Black - HITEC City The Loft", "The Loft, Hitech City Main Road", 17.4430, 78.3815],
+      ["True Black - Kokapet", "Commercial High Street, Kokapet Main Road", 17.4050, 78.3320],
+      ["True Black - Kompally", "Near Cineplanet, Kompally", 17.5335, 78.4875],
+      ["True Black - Lakeshore Mall Kukatpally", "Lakeshore / Forum Vicinity, KPHB", 17.4810, 78.3910]
     ];
 
-    // 5. CCD (Café Coffee Day) — High-Traffic & Institutional Corridors
+    const californiaBurritoOutlets = [
+      ["California Burrito - Inorbit Mall", "Food Court 3rd Floor, HITEC City", 17.4362, 78.3872],
+      ["California Burrito - Sarath City Capital Mall", "Lower Ground Level, Kondapur", 17.4580, 78.3638],
+      ["California Burrito - Nexus Mall Kukatpally", "Food Court 4th Floor, KPHB", 17.4845, 78.3888],
+      ["California Burrito - Punjagutta Next Galleria", "L&T Metro Mall Punjagutta, Food Court", 17.4280, 78.4510],
+      ["California Burrito - DLF Cyber City", "Ground Floor, DLF Cyber City, Gachibowli", 17.4475, 78.3582],
+      ["California Burrito - Sattva Knowledge City", "Food Court Level, Knowledge City", 17.4343, 78.3826],
+      ["California Burrito - Lanco Hills Manikonda", "Lanco Hills Commercial Spine", 17.4105, 78.3750],
+      ["California Burrito - Himayatnagar", "Liberty Main Road, Opp Minerva", 17.4020, 78.4835],
+      ["California Burrito - Banjara Hills City Centre", "Road No. 1, Opp City Centre Mall", 17.4202, 78.4480],
+      ["California Burrito - Jubilee Hills Rd 82", "Near Film Nagar Road 82 Junction", 17.4260, 78.4090],
+      ["California Burrito - Kompally Cineplanet", "Cineplanet Commercial Promenade", 17.5350, 78.4885],
+      ["California Burrito - GSM Mall Miyapur", "Food Court, GSM Mall, Miyapur", 17.5015, 78.3580],
+      ["California Burrito - Aparna Neo Mall", "Aparna Neo Mall, Nallagandla", 17.4680, 78.3140],
+      ["California Burrito - Kokapet", "Shankarpalli Main Road, Kokapet", 17.4045, 78.3290],
+      ["California Burrito - Attapur", "Near Pillar 142, PVNR Expressway", 17.3760, 78.4340],
+      ["California Burrito - DSL Virtue Mall Uppal", "Food Court Level, Uppal Main Road", 17.3990, 78.5600],
+      ["California Burrito - TCS Synergy Park", "Near Synergy Park SEZ Gate, Gachibowli", 17.4365, 78.3550],
+      ["California Burrito - RGIA Airport", "Food Court, Departures Terminal, Shamshabad", 17.2405, 78.4292]
+    ];
+
+    const concuOutlets = [
+      ["Conçù - Jubilee Hills Flagship", "Plot 479/B, Road No. 21/37, Jubilee Hills", 17.4352, 78.4022],
+      ["Conçù - Begumpet Kundanbagh", "Country Club Road, Kundanbagh Colony", 17.4435, 78.4580],
+      ["Conçù - Skyview 20 Madhapur", "The Skyview 20, Knowledge City Nexus", 17.4350, 78.3795],
+      ["Conçù - Film Nagar Rd 86", "Road No. 86, Film Nagar", 17.4162, 78.4125],
+      ["Conçù - Financial District", "Nanakramguda High Street Lane", 17.4178, 78.3470],
+      ["Conçù - Kokapet Golden Mile", "Retail Arcade, Kokapet", 17.4045, 78.3315],
+      ["Conçù - Banjara Hills Rd 12", "Road No. 12, Near Century Hospital", 17.4155, 78.4325]
+    ];
+
+    const labonelOutlets = [
+      ["Labonel - Banjara Hills Rd 2", "Road No. 2, Opp Annapurna Studios", 17.4220, 78.4310],
+      ["Labonel - Jubilee Hills Rd 45", "Road No. 45, Near CGR International", 17.4308, 78.4110],
+      ["Labonel - Gachibowli SLN Terminus", "SLN Terminus Ground Arcade, Kondapur Rd", 17.4525, 78.3615],
+      ["Labonel - Secunderabad Prenderghast", "Prenderghast Road, Behind Anand Theatre", 17.4410, 78.4890]
+    ];
+
+    const harleysOutlets = [
+      ["Harley's - Jubilee Hills Rd 36", "Road No. 36, Near Peddamma Temple", 17.4339, 78.4068],
+      ["Harley's - Financial District", "Ivory Lounge, Nanakramguda", 17.4184, 78.3486],
+      ["Harley's - Madhapur Ayyappa Society", "Ayyappa Society Main Road", 17.4468, 78.3890],
+      ["Harley's - Banjara Hills Rd 12", "Road No. 12, Century Hospital Road", 17.4151, 78.4336],
+      ["Harley's - Kondapur", "Near Botanical Garden Road Junction", 17.4640, 78.3585]
+    ];
+
+    const theobromaOutlets = [
+      ["Theobroma - Jubilee Hills Check Post", "Road No. 36 Check Post", 17.4280, 78.4120],
+      ["Theobroma - Sarath City Capital Mall", "Lower Ground Floor, Kondapur", 17.4578, 78.3638],
+      ["Theobroma - Knowledge City Piazza", "Sattva Knowledge City Central Concourse", 17.4342, 78.3824],
+      ["Theobroma - Inorbit Mall", "Ground Floor Outer Deck, Madhapur", 17.4360, 78.3870],
+      ["Theobroma - Banjara Hills Rd 12", "Fortune Monarch Mall, Rd 12", 17.4150, 78.4330],
+      ["Theobroma - Begumpet Kundanbagh", "Near Lifestyle Building, Kundanbagh", 17.4420, 78.4575],
+      ["Theobroma - Nexus Mall Kukatpally", "Ground Level, KPHB Colony", 17.4842, 78.3880],
+      ["Theobroma - Financial District One West", "One West Commercial Center", 17.4172, 78.3492],
+      ["Theobroma - Kondapur Botanical Garden", "Botanical Garden Road, Kondapur", 17.4650, 78.3575],
+      ["Theobroma - Himayatnagar", "Old MLA Quarters Road, Himayatnagar", 17.4010, 78.4840],
+      ["Theobroma - Sainikpuri", "Vayupuri Main Road, Sainikpuri", 17.4895, 78.5475]
+    ];
+
     const ccdOutlets = [
       ["CCD - Cyber Towers Roundabout", "Cyber Towers Quad, HITEC City", 17.4485, 78.3810],
       ["CCD - Banjara Hills Road No. 1", "Near City Center Mall, Banjara Hills", 17.4198, 78.4482],
-      ["CCD - Jubilee Hills Road No. 36", "Check Post Junction", 17.4285, 78.4125],
+      ["CCD - Jubilee Hills Checkpost", "Check Post Junction, Road No. 36", 17.4285, 78.4125],
       ["CCD - Gachibowli DLF Cyber City", "Opposite DLF Main Gate, Gachibowli", 17.4470, 78.3580],
       ["CCD - Mindspace IT Park", "Near Building 3, HITEC City", 17.4392, 78.3802],
       ["CCD - Begumpet Airport Lane", "Prakash Nagar, Begumpet", 17.4462, 78.4610],
       ["CCD - Secunderabad Clock Tower", "Sarojini Devi Road, Secunderabad", 17.4405, 78.4985],
-      ["CCD - KIMS Hospital Concourse", "Minister Road, Secunderabad", 17.4360, 78.4862]
+      ["CCD - KIMS Hospital Concourse", "Minister Road, Secunderabad", 17.4360, 78.4862],
+      ["CCD - Somajiguda Circle", "Near Raj Bhavan Road, Somajiguda", 17.4288, 78.4545],
+      ["CCD - Jubilee Hills Road No. 36", "Opposite Peddamma Temple Metro", 17.4332, 78.4072]
     ];
 
-    // 6. Roastery Coffee House & Artisanal Independent Roasters (AOV: ₹400 - ₹600)
-    const roasteryOutlets = [
-      ["Roastery Coffee House - Banjara Hills", "Plot 418, Road No. 14, Banjara Hills", 17.4180, 78.4280],
-      ["Craft Coffee - Banjara Hills", "Road No. 12, Banjara Hills", 17.4155, 78.4320],
-      ["The Coffee Cup - Sainikpuri", "Canara Bank Lane, Sainikpuri", 17.4890, 78.5470],
-      ["Last House Coffee - Durgam Cheruvu", "Waterfront Promenade, Madhapur", 17.4310, 78.3905],
-      ["To Be Honest (TBH) Coffee - Jubilee Hills", "Road No. 45, Jubilee Hills", 17.4302, 78.4118]
-    ];
-
-    // 7. California Burrito (AOV: ₹300 - ₹450)
-    const californiaBurritoOutlets = [
-      ["California Burrito - Knowledge City", "Food Court Level, Sattva Knowledge City", 17.4343, 78.3826],
-      ["California Burrito - DLF Cyber City", "Ground Floor, DLF Cyber City, Gachibowli", 17.4475, 78.3582],
-      ["California Burrito - Inorbit Mall", "Food Court 3rd Floor, HITEC City", 17.4362, 78.3872],
-      ["California Burrito - Sarath City Capital Mall", "Lower Ground Level, Kondapur", 17.4580, 78.3638],
-      ["California Burrito - Nexus Mall Kukatpally", "Food Court 4th Floor, KPHB", 17.4845, 78.3888],
-      ["California Burrito - Banjara Hills", "Road No. 1, Opp City Centre Mall", 17.4202, 78.4480],
-      ["California Burrito - Gachibowli Tech Zone", "Near ORR Exit 19, Nanakramguda", 17.4185, 78.3475],
-      ["California Burrito - Jubilee Hills Rd 36", "Next to Peddamma Metro Station", 17.4336, 78.4072]
-    ];
-
-    // 8. Subway (Select High-AOV Corporate & Prime Corridors)
-    const subwayOutlets = [
-      ["Subway - Knowledge City", "Phoenix Centrance Basement Feeder", 17.4345, 78.3825],
-      ["Subway - Financial District One West", "One West Commercial Complex", 17.4170, 78.3490],
-      ["Subway - WaveRock SEZ", "Food Court Waverock, Nanakramguda", 17.4172, 78.3421],
-      ["Subway - Raheja Mindspace", "Food Court Building 12, Madhapur", 17.4388, 78.3808],
-      ["Subway - Jubilee Hills Road No. 36", "Near Check Post", 17.4330, 78.4075],
-      ["Subway - Banjara Hills Road No. 10", "Near Star Hospital Road", 17.4280, 78.4138],
-      ["Subway - DLF Cyber City Gachibowli", "Main Food Street, DLF Cybercity", 17.4472, 78.3585],
-      ["Subway - Kondapur Main Road", "Opposite Raghavaendra Colony", 17.4645, 78.3580]
-    ];
-
-    // 9. McDonald's (Prime Western Corridor Drive-Thrus & Malls, AOV: ₹260 - ₹400)
-    const mcdonaldsOutlets = [
-      ["McDonald's - Jubilee Hills Road No. 36", "Marquee Standalone, Near Check Post", 17.4332, 78.4074],
-      ["McDonald's - Banjara Hills Rd 12", "Midtown Commercial, Banjara Hills", 17.4152, 78.4330],
-      ["McDonald's - Gachibowli Drive-Thru", "ORR Circle Junction, Gachibowli", 17.4410, 78.3550],
-      ["McDonald's - Inorbit Mall HITEC City", "3rd Floor Food Court", 17.4361, 78.3874],
-      ["McDonald's - Sarath City Mall Kondapur", "Ground Floor Outer Promenade", 17.4576, 78.3642],
-      ["McDonald's - Nexus Mall Kukatpally", "Food Court, KPHB Colony", 17.4840, 78.3882],
-      ["McDonald's - Financial District", "Nanakramguda Main Road", 17.4165, 78.3480],
-      ["McDonald's - Attapur Drive-Thru", "PVNR Expressway Pillar 140", 17.3750, 78.4330]
-    ];
-
-    // 10. Conçù (Artisanal European Patisserie, AOV: ₹550 - ₹950)
-    const concuOutlets = [
-      ["Conçù - Jubilee Hills Flagship", "Plot 479/B, Road No. 21/37, Jubilee Hills", 17.4352, 78.4022],
-      ["Conçù - Begumpet", "Country Club Road, Kundanbagh Colony", 17.4435, 78.4580],
-      ["Conçù - Madhapur / Knowledge City", "The Skyview 20, Ground Level", 17.4350, 78.3795],
-      ["Conçù - Film Nagar", "Road No. 86, Film Nagar", 17.4162, 78.4125],
-      ["Conçù - Financial District", "Nanakramguda High Street Lane", 17.4178, 78.3470],
-      ["Conçù - Kokapet One Golden Mile", "Retail Arcade, Kokapet", 17.4045, 78.3315]
-    ];
-
-    // 11. Labonel Fine Baking (Ultra-Luxury Artisanal Baking, AOV: ₹700 - ₹1,400)
-    const labonelOutlets = [
-      ["Labonel - Banjara Hills Flagship", "Road No. 2, Opp Annapurna Studios", 17.4220, 78.4310],
-      ["Labonel - Jubilee Hills", "Road No. 45, Near CGR International School", 17.4308, 78.4110],
-      ["Labonel - Gachibowli", "SLN Terminus Ground Arcade, Kondapur Main Rd", 17.4525, 78.3615],
-      ["Labonel - Secunderabad", "Prenderghast Road, Behind Anand Theatre", 17.4410, 78.4890]
-    ];
-
-    // 12. Harley's Fine Baking (European Tres Leches Specialist, AOV: ₹450 - ₹800)
-    const harleysOutlets = [
-      ["Harley's - Jubilee Hills", "Road No. 36, Near Peddamma Temple", 17.4339, 78.4068],
-      ["Harley's - Financial District", "Ivory Lounge, Nanakramguda", 17.4184, 78.3486],
-      ["Harley's - Madhapur", "Ayyappa Society Main Road", 17.4468, 78.3890],
-      ["Harley's - Banjara Hills", "Road No. 12, Century Hospital Road", 17.4151, 78.4336]
-    ];
-
-    // 13. Theobroma (Pâtisserie & Brownies, AOV: ₹350 - ₹600)
-    const theobromaOutlets = [
-      ["Theobroma - Jubilee Hills Check Post", "Road No. 36 Check Post", 17.4280, 78.4120],
-      ["Theobroma - Sarath City Capital Mall", "Lower Ground Floor, Kondapur", 17.4578, 78.3638],
-      ["Theobroma - Knowledge City", "Sattva Knowledge City Piazza", 17.4342, 78.3824],
-      ["Theobroma - Inorbit Mall HITEC City", "Ground Floor Outer Deck", 17.4360, 78.3870],
-      ["Theobroma - Banjara Hills Road 12", "Fortune Monarch Mall, Rd 12", 17.4150, 78.4330],
-      ["Theobroma - Begumpet", "Near Lifestyle Building, Kundanbagh", 17.4420, 78.4575],
-      ["Theobroma - Nexus Mall Kukatpally", "Ground Level, KPHB Colony", 17.4842, 78.3880],
-      ["Theobroma - Financial District", "One West Commercial Center", 17.4172, 78.3492]
-    ];
-
-    // 14. Karachi Bakery & Café (Heritage Bakery & Café, AOV: ₹280 - ₹500)
     const karachiOutlets = [
-      ["Karachi Bakery - Banjara Hills", "Road No. 1, Banjara Hills", 17.4195, 78.4485],
+      ["Karachi Bakery - Banjara Hills Rd 1", "Road No. 1, Banjara Hills", 17.4195, 78.4485],
       ["Karachi Café - Gachibowli", "Botanical Garden Road, Kondapur", 17.4648, 78.3572],
-      ["Karachi Bakery - HITEC City", "Near Cyber Towers Junction", 17.4480, 78.3815],
+      ["Karachi Bakery - Cyber Towers", "Near Cyber Towers Junction, Madhapur", 17.4480, 78.3815],
       ["Karachi Bakery - Mozamjahi Market", "MJ Market Square, Nampally", 17.3820, 78.4750],
-      ["Karachi Bakery - Shamshabad Airport", "Departures Terminal Outer Concourse", 17.2405, 78.4290]
+      ["Karachi Bakery - Shamshabad Airport", "Departures Terminal Outer Concourse", 17.2405, 78.4290],
+      ["Karachi Bakery - Jubilee Hills Rd 36", "Road No. 36, Near Metro Station", 17.4334, 78.4070],
+      ["Karachi Bakery - Begumpet", "Near Rasoolpura Metro, Begumpet", 17.4415, 78.4620],
+      ["Karachi Bakery - Secunderabad", "Paradise Circle, MG Road", 17.4410, 78.4910]
     ];
 
-    // 15. Cult.fit Centers & Luxury Gyms
     const cultOutlets = [
       ["Cult.fit - Kondapur", "Above Karachi Bakery, Botanical Garden Rd", 17.4648, 78.3572],
       ["Cult.fit - Kavuri Hills", "Phase 1, Kavuri Hills, Madhapur", 17.4420, 78.3960],
@@ -483,13 +460,63 @@
       ["Cult.fit Signature - Jubilee Hills", "Road No. 36, Near Peddamma Temple Metro", 17.4338, 78.4069],
       ["Cult.fit - Banjara Hills", "Road No. 12, Century Hospital Road", 17.4150, 78.4335],
       ["Cult.fit - Knowledge City", "Level 2 Fitness Hub, Sattva Knowledge City", 17.4342, 78.3824],
-      ["Cult.fit - Kokapet", "Near One Golden Mile", 17.4040, 78.3310],
+      ["Cult.fit - Kokapet", "Near One Golden Mile, Kokapet", 17.4040, 78.3310],
       ["Cult.fit - Miyapur", "Near Talkie Town, Miyapur", 17.4980, 78.3590],
-      ["Gold's Gym - Banjara Hills", "Road No. 10, Banjara Hills", 17.4285, 78.4140],
+      ["Gold's Gym - Banjara Hills Rd 10", "Road No. 10, Banjara Hills", 17.4285, 78.4140],
       ["F45 Training - Jubilee Hills", "Road No. 36, Near Check Post", 17.4338, 78.4069]
     ];
 
-    // Top Landmark Gated Communities
+    const mcdonaldsOutlets = [
+      ["McDonald's - Jubilee Hills Rd 36", "Marquee Standalone, Near Check Post", 17.4332, 78.4074],
+      ["McDonald's - Banjara Hills Rd 12", "Midtown Commercial, Banjara Hills", 17.4152, 78.4330],
+      ["McDonald's - Gachibowli Drive-Thru", "ORR Circle Junction, Gachibowli", 17.4410, 78.3550],
+      ["McDonald's - Inorbit Mall HITEC City", "3rd Floor Food Court, Madhapur", 17.4361, 78.3874],
+      ["McDonald's - Sarath City Mall Kondapur", "Ground Floor Outer Promenade", 17.4576, 78.3642],
+      ["McDonald's - Nexus Mall Kukatpally", "Food Court, KPHB Colony", 17.4840, 78.3882],
+      ["McDonald's - Financial District", "Nanakramguda Main Road", 17.4165, 78.3480],
+      ["McDonald's - Attapur Drive-Thru", "PVNR Expressway Pillar 140", 17.3750, 78.4330],
+      ["McDonald's - Himayatnagar", "Himayatnagar Main Road", 17.4018, 78.4838],
+      ["McDonald's - Kompally", "Suchitra Junction / Kompally Highway", 17.5340, 78.4882]
+    ];
+
+    const subwayOutlets = [
+      ["Subway - Sattva Knowledge City", "Phoenix Centrance Basement Concourse", 17.4345, 78.3825],
+      ["Subway - Financial District One West", "One West Commercial Complex", 17.4170, 78.3490],
+      ["Subway - WaveRock SEZ", "Food Court Waverock, Nanakramguda", 17.4172, 78.3421],
+      ["Subway - Raheja Mindspace", "Food Court Building 12, Madhapur", 17.4388, 78.3808],
+      ["Subway - Jubilee Hills Rd 36", "Near Check Post, Road 36", 17.4330, 78.4075],
+      ["Subway - Banjara Hills Rd 10", "Near Star Hospital Road", 17.4280, 78.4138],
+      ["Subway - DLF Cyber City", "Main Food Street, DLF Cybercity", 17.4472, 78.3585],
+      ["Subway - Kondapur Main Rd", "Opposite Raghavendra Colony", 17.4645, 78.3580],
+      ["Subway - Inorbit Mall", "3rd Floor Food Court, HITEC City", 17.4363, 78.3873]
+    ];
+
+    const roasteryOutlets = [
+      ["Roastery Coffee House - Banjara Hills Rd 14", "Plot 418, Road No. 14, Banjara Hills", 17.4180, 78.4280],
+      ["Craft Coffee - Banjara Hills Rd 12", "Road No. 12, Banjara Hills", 17.4155, 78.4320],
+      ["The Coffee Cup - Sainikpuri", "Canara Bank Lane, Sainikpuri", 17.4890, 78.5470],
+      ["Last House Coffee - Durgam Cheruvu", "Waterfront Promenade, Madhapur", 17.4310, 78.3905],
+      ["To Be Honest (TBH) - Jubilee Hills", "Road No. 45, Jubilee Hills", 17.4302, 78.4118]
+    ];
+
+    const corpCompanies = [
+      ["Microsoft IDC", "Microsoft Campus Gachibowli", "₹20 - 45 LPA", "₹50 - 1.2+ Cr", "Tier-1 Tech", 17.4399, 78.3486],
+      ["Google India", "DivyaSree Omega Kondapur", "₹22 - 50 LPA", "₹60 - 1.5+ Cr", "Tier-1 Tech", 17.4617, 78.3686],
+      ["Amazon / AWS", "Amazon Campus Nanakramguda", "₹18 - 40 LPA", "₹45 - 1.0+ Cr", "Tier-1 Tech", 17.4206, 78.3444],
+      ["Apple", "WaveRock SEZ Nanakramguda", "₹20 - 45 LPA", "₹50 - 1.2+ Cr", "Tier-1 Tech", 17.4172, 78.3421],
+      ["Salesforce", "DivyaSree Orion Raidurg", "₹18 - 38 LPA", "₹45 - 95 LPA", "Tier-1 Tech", 17.4253, 78.3804],
+      ["ServiceNow", "Sattva Knowledge City Madhapur", "₹18 - 36 LPA", "₹42 - 90 LPA", "Tier-1 Tech", 17.4344, 78.3828],
+      ["Uber", "Meenakshi Tech Park Kondapur", "₹20 - 42 LPA", "₹48 - 1.1+ Cr", "Tier-1 Tech", 17.4589, 78.3681],
+      ["Oracle", "Oracle Campus Madhapur", "₹14 - 30 LPA", "₹32 - 70 LPA", "Tier-1 Tech", 17.4428, 78.3801],
+      ["Qualcomm", "Commerzone Raidurg", "₹16 - 32 LPA", "₹35 - 80 LPA", "Semiconductors", 17.4292, 78.3820],
+      ["Goldman Sachs", "Knowledge City Raidurg", "₹18 - 38 LPA", "₹45 - 1.0+ Cr", "Investment Banking", 17.4345, 78.3827],
+      ["JPMorgan Chase", "Knowledge City & Mindspace", "₹14 - 32 LPA", "₹35 - 80 LPA", "Investment Banking", 17.4340, 78.3820],
+      ["D. E. Shaw & Co.", "The V Ascendas IT Park", "₹28 - 60 LPA", "₹70 - 1.8+ Cr", "Quant & FinTech", 17.4443, 78.3842],
+      ["State Street", "WaveRock Financial District", "₹13 - 26 LPA", "₹28 - 55 LPA", "FinTech", 17.4170, 78.3425],
+      ["Wells Fargo", "DivyaSree Orion Raidurg", "₹14 - 30 LPA", "₹32 - 70 LPA", "GCC", 17.4248, 78.3802],
+      ["Deloitte USI", "Mindspace / WaveRock", "₹12 - 26 LPA", "₹28 - 60 LPA", "Advisory", 17.4390, 78.3768]
+    ];
+
     const seedSocieties = [
       ["My Home Tridasa", "My Home", 5270, "Tellapur", 17.51678, 78.2953],
       ["The Prestige City", "Prestige", 4766, "Rajendranagar", 17.30632, 78.41754],
@@ -502,30 +529,13 @@
       ["Aparna Sarovar Zicon", "Aparna", 3024, "Nallagandla", 17.46508, 78.31329],
       ["My Home Avatar", "My Home", 2800, "Puppalguda", 17.39878, 78.35549],
       ["SMR Vinay Iconia", "SMR", 2500, "Kondapur", 17.46966, 78.33442],
+      ["Rainbow Vistas @ RockGarden", "Cybercity", 2500, "Moosapet", 17.46776, 78.40815],
       ["Prestige High Fields", "Prestige", 2240, "Nanakramguda", 17.41341, 78.33945],
       ["My Home Bhooja", "My Home", 1760, "Raidurg", 17.43091, 78.37728],
       ["Aparna Serene Park", "Aparna", 1680, "Kondapur", 17.46404, 78.33748],
       ["Lanco Hills", "Lanco", 1392, "Manikonda", 17.40989, 78.37532]
     ];
 
-    // Corporate Campuses (>₹12 LPA Mid-Level)
-    const corpCompanies = [
-      ["Microsoft IDC", "Microsoft Campus Gachibowli", "₹20 - 45 LPA", "₹50 - 1.2+ Cr", 17.4399, 78.3486],
-      ["Google India", "DivyaSree Omega Kondapur", "₹22 - 50 LPA", "₹60 - 1.5+ Cr", 17.4617, 78.3686],
-      ["Amazon / AWS", "Amazon Campus Nanakramguda", "₹18 - 40 LPA", "₹45 - 1.0+ Cr", 17.4206, 78.3444],
-      ["Apple", "WaveRock SEZ Nanakramguda", "₹20 - 45 LPA", "₹50 - 1.2+ Cr", 17.4172, 78.3421],
-      ["Salesforce", "DivyaSree Orion Raidurg", "₹18 - 38 LPA", "₹45 - 95 LPA", 17.4253, 78.3804],
-      ["ServiceNow", "Sattva Knowledge City Madhapur", "₹18 - 36 LPA", "₹42 - 90 LPA", 17.4344, 78.3828],
-      ["Uber", "Meenakshi Tech Park Kondapur", "₹20 - 42 LPA", "₹48 - 1.1+ Cr", 17.4589, 78.3681],
-      ["Oracle", "Oracle Campus Madhapur", "₹14 - 30 LPA", "₹32 - 70 LPA", 17.4428, 78.3801],
-      ["Qualcomm", "Commerzone Raidurg", "₹16 - 32 LPA", "₹35 - 80 LPA", 17.4292, 78.3820],
-      ["Goldman Sachs", "Knowledge City Raidurg", "₹18 - 38 LPA", "₹45 - 1.0+ Cr", 17.4345, 78.3827],
-      ["JPMorgan Chase", "Knowledge City & Mindspace", "₹14 - 32 LPA", "₹35 - 80 LPA", 17.4340, 78.3820]
-    ];
-
-    // -------------------------------------------------------------
-    // RENDER HELPERS
-    // -------------------------------------------------------------
     function renderSimpleLayer(list, targetLayer, color, iconClass, categoryName, aov) {
       list.forEach(item => {
         const name = item[0];
@@ -552,24 +562,21 @@
       });
     }
 
-    // -------------------------------------------------------------
-    // POPULATE ALL PRE-RESEARCHED BRANDS
-    // -------------------------------------------------------------
-    renderSimpleLayer(blueTokaiOutlets, lg_blue_tokai, '#004d40', 'fa-mug-hot', 'Specialty Coffee Roaster', '₹350 - ₹500');
-    renderSimpleLayer(starbucksOutlets, lg_starbucks, '#00704a', 'fa-mug-hot', 'Global Coffee Chain', '₹380 - ₹550');
-    renderSimpleLayer(thirdWaveOutlets, lg_third_wave, '#bf360c', 'fa-mug-hot', 'Specialty Coffee Roaster', '₹320 - ₹480');
-    renderSimpleLayer(trueBlackOutlets, lg_true_black, '#212121', 'fa-mug-hot', 'Artisanal Coffee', '₹350 - ₹550');
-    renderSimpleLayer(ccdOutlets, lg_ccd, '#b71c1c', 'fa-mug-hot', 'Café Chain', '₹220 - ₹350');
-    renderSimpleLayer(roasteryOutlets, lg_roastery, '#3e2723', 'fa-mug-hot', 'Artisanal Roaster', '₹400 - ₹600');
-    renderSimpleLayer(californiaBurritoOutlets, lg_california_burrito, '#e65100', 'fa-utensils', 'Mexican Fast Casual', '₹300 - ₹450');
-    renderSimpleLayer(subwayOutlets, lg_subway, '#2e7d32', 'fa-burger', 'Fast Casual Sub/Salad', '₹250 - ₹380');
-    renderSimpleLayer(mcdonaldsOutlets, lg_mcdonalds, '#c62828', 'fa-burger', 'Global QSR (High AOV format)', '₹260 - ₹400');
-    renderSimpleLayer(concuOutlets, lg_concu, '#4a148c', 'fa-cookie-bite', 'Artisanal European Patisserie', '₹550 - ₹950');
-    renderSimpleLayer(labonelOutlets, lg_labonel, '#880e4f', 'fa-cookie-bite', 'Luxury Gourmet Baking', '₹700 - ₹1,400');
-    renderSimpleLayer(harleysOutlets, lg_harleys, '#00838f', 'fa-cookie-bite', 'European Tres Leches Patisserie', '₹450 - ₹800');
-    renderSimpleLayer(theobromaOutlets, lg_theobroma, '#ad1457', 'fa-cookie-bite', 'Pâtisserie & Brownies', '₹350 - ₹600');
-    renderSimpleLayer(karachiOutlets, lg_karachi, '#d84315', 'fa-bread-slice', 'Heritage Café & Bakery', '₹280 - ₹500');
-    renderSimpleLayer(cultOutlets, lg_cult, '#0288d1', 'fa-dumbbell', 'Fitness Anchor / Cult', 'Health-focused');
+    renderSimpleLayer(starbucksOutlets, lg_starbucks, '#00704a', 'fa-mug-hot', 'Starbucks', '₹380 - ₹550');
+    renderSimpleLayer(thirdWaveOutlets, lg_third_wave, '#bf360c', 'fa-mug-hot', 'Third Wave Coffee', '₹320 - ₹480');
+    renderSimpleLayer(blueTokaiOutlets, lg_blue_tokai, '#004d40', 'fa-mug-hot', 'Blue Tokai Roasters', '₹350 - ₹500');
+    renderSimpleLayer(trueBlackOutlets, lg_true_black, '#212121', 'fa-mug-hot', 'True Black Specialty', '₹350 - ₹550');
+    renderSimpleLayer(californiaBurritoOutlets, lg_california_burrito, '#e65100', 'fa-utensils', 'California Burrito', '₹300 - ₹450');
+    renderSimpleLayer(concuOutlets, lg_concu, '#4a148c', 'fa-cookie-bite', 'Conçù Patisserie', '₹550 - ₹950');
+    renderSimpleLayer(labonelOutlets, lg_labonel, '#880e4f', 'fa-cookie-bite', 'Labonel Fine Baking', '₹700 - ₹1,400');
+    renderSimpleLayer(harleysOutlets, lg_harleys, '#00838f', 'fa-cookie-bite', 'Harley\'s Fine Baking', '₹450 - ₹800');
+    renderSimpleLayer(theobromaOutlets, lg_theobroma, '#ad1457', 'fa-cookie-bite', 'Theobroma Pâtisserie', '₹350 - ₹600');
+    renderSimpleLayer(ccdOutlets, lg_ccd, '#b71c1c', 'fa-mug-hot', 'Café Coffee Day (CCD)', '₹220 - ₹350');
+    renderSimpleLayer(karachiOutlets, lg_karachi, '#d84315', 'fa-bread-slice', 'Karachi Bakery & Café', '₹280 - ₹500');
+    renderSimpleLayer(cultOutlets, lg_cult, '#0288d1', 'fa-dumbbell', 'Cult.fit & Gyms', 'Fitness / Wellness');
+    renderSimpleLayer(mcdonaldsOutlets, lg_mcdonalds, '#c62828', 'fa-burger', 'McDonald\'s Prime', '₹260 - ₹400');
+    renderSimpleLayer(subwayOutlets, lg_subway, '#2e7d32', 'fa-burger', 'Subway QSR', '₹250 - ₹380');
+    renderSimpleLayer(roasteryOutlets, lg_roastery, '#3e2723', 'fa-mug-hot', 'Roastery Coffee House', '₹400 - ₹600');
 
     corpCompanies.forEach(c => {
       const popupHtml = `
@@ -582,12 +589,9 @@
           </div>
         </div>
       `;
-      L.marker([c[4], c[5]], { icon: makeIcon('#4e342e', 'fa-briefcase') }).bindPopup(popupHtml).addTo(lg_corp);
+      L.marker([c[5], c[6]], { icon: makeIcon('#4e342e', 'fa-briefcase') }).bindPopup(popupHtml).addTo(lg_corp);
     });
 
-    // -------------------------------------------------------------
-    // GATED APARTMENTS RENDERING & FILTERING
-    // -------------------------------------------------------------
     function renderApartmentMarker(a) {
       const popupHtml = `
         <div class="popup-box">
@@ -623,9 +627,6 @@
       renderApartmentMarker(record);
     });
 
-    // -------------------------------------------------------------
-    // SPATIAL PROXIMITY & HUD CALIBRATION
-    // -------------------------------------------------------------
     function getDistanceMeters(lat1, lon1, lat2, lon2) {
       const R = 6371e3;
       const φ1 = lat1 * Math.PI / 180, φ2 = lat2 * Math.PI / 180;
@@ -652,8 +653,11 @@
       allOutletsRegistry.forEach(o => {
         const d = getDistanceMeters(lat, lon, o.lat, o.lon);
         if (d <= scanRadius) {
-          if (o.category.includes('Coffee') || o.category.includes('Café')) coffeeCount++;
-          else qsrCount++;
+          if (o.category.includes('Coffee') || o.category.includes('Café') || o.category.includes('Starbucks') || o.category.includes('Roasters')) {
+            coffeeCount++;
+          } else {
+            qsrCount++;
+          }
         }
       });
 
@@ -678,9 +682,6 @@
       document.getElementById('insight-card').style.display = 'block';
     }
 
-    // -------------------------------------------------------------
-    // LAUNCH CIRCLES RENDERING
-    // -------------------------------------------------------------
     function renderLaunchCircles(radius) {
       lg_50m_circles.clearLayers();
       circlesConfig.forEach(c => {
@@ -715,14 +716,12 @@
       renderLaunchCircles(activeCircleRadius);
     }
 
-    // -------------------------------------------------------------
-    // HEATMAP LAYER
-    // -------------------------------------------------------------
     const heatPoints = [
       [17.43415, 78.3824, 1.0], [17.43378, 78.40712, 1.0], [17.42265, 78.4314, 1.0],
       [17.41712, 78.34915, 0.95], [17.46475, 78.35718, 0.92], [17.41547, 78.43842, 1.0],
       [17.43332, 78.40457, 0.95], [17.44636, 78.38091, 0.85], [17.4435, 78.3772, 0.95],
-      [17.4578, 78.3638, 0.9], [17.4842, 78.3885, 0.85], [17.4280, 78.4120, 0.95]
+      [17.4578, 78.3638, 0.9], [17.4842, 78.3885, 0.85], [17.4280, 78.4120, 0.95],
+      [17.4170, 78.3425, 0.9], [17.4042, 78.3312, 0.85], [17.4015, 78.4830, 0.8]
     ];
     let lg_remapped_heat = L.heatLayer(heatPoints, {
       radius: 40, blur: 35, maxZoom: 13,
@@ -738,9 +737,6 @@
       }).addTo(map);
     }
 
-    // -------------------------------------------------------------
-    // INTERACTIVE DROP-PIN SIMULATOR
-    // -------------------------------------------------------------
     let simModeActive = false;
     let simMarker = null, simCircle = null;
 
@@ -781,9 +777,6 @@
       runCatchmentAudit(`Simulated Spot (${lat.toFixed(4)}, ${lng.toFixed(4)})`, lat, lng, activeCircleRadius, null, "Manual pin placement");
     });
 
-    // -------------------------------------------------------------
-    // DYNAMIC CUSTOM LAYER CREATION (UI BUILDER)
-    // -------------------------------------------------------------
     let layerControl = null;
 
     function createCustomMapLayer() {
@@ -836,9 +829,6 @@
       }
     }
 
-    // -------------------------------------------------------------
-    // FILE PARSER FOR EXTRA INGESTION
-    // -------------------------------------------------------------
     function ingestCustomLayer(event, targetType) {
       const file = event.target.files && event.target.files[0];
       if (!file) return;
@@ -885,6 +875,10 @@
                 L.marker([lat, lon], { icon: makeIcon('#ad1457', 'fa-cookie-bite') }).bindPopup(`<b>${title}</b><br>${loc}`).addTo(lg_concu);
               } else if (targetType === 'gyms') {
                 L.marker([lat, lon], { icon: makeIcon('#0288d1', 'fa-dumbbell') }).bindPopup(`<b>${title}</b><br>${loc}`).addTo(lg_cult);
+              } else if (targetType === 'societies') {
+                const item = { title, builder: 'Uploaded', units: parseInt(getVal(r, ['unit_count', 'units'])) || 250, loc, lat, lon };
+                allApartmentRecords.push(item);
+                renderApartmentMarker(item);
               }
               allOutletsRegistry.push({ name: title, lat, lon, category: targetType, aov: '₹250+' });
               count++;
@@ -901,17 +895,15 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // -------------------------------------------------------------
-    // INITIAL MAP ACTIVATION & LAYER CONTROLS
-    // -------------------------------------------------------------
     renderLaunchCircles(activeCircleRadius);
     lg_50m_circles.addTo(map);
     lg_remapped_heat.addTo(map);
 
-    // Active layers by default
-    lg_blue_tokai.addTo(map);
+    // Default layers activated
     lg_starbucks.addTo(map);
     lg_third_wave.addTo(map);
+    lg_blue_tokai.addTo(map);
+    lg_true_black.addTo(map);
     lg_california_burrito.addTo(map);
     lg_concu.addTo(map);
     lg_cult.addTo(map);
@@ -920,21 +912,21 @@
     const overlays = {
       "🎯 Micro-Launch Circles": lg_50m_circles,
       "🔥 Composite Demand Heatmap": lg_remapped_heat,
-      "☕ Blue Tokai Roasters": lg_blue_tokai,
-      "☕ Starbucks": lg_starbucks,
-      "☕ Third Wave Coffee": lg_third_wave,
-      "☕ True Black Specialty": lg_true_black,
-      "☕ Roastery Coffee House & Artisanal": lg_roastery,
-      "☕ Café Coffee Day (CCD)": lg_ccd,
-      "🌯 California Burrito": lg_california_burrito,
-      "🥪 Subway (High AOV Hubs)": lg_subway,
-      "🍔 McDonald's (Prime / Drive-Thru)": lg_mcdonalds,
-      "🥐 Conçù Artisanal Patisserie": lg_concu,
-      "🍰 Labonel Fine Baking": lg_labonel,
-      "🍰 Harley's Fine Baking": lg_harleys,
-      "🧁 Theobroma Pâtisserie": lg_theobroma,
-      "🍞 Karachi Bakery & Café": lg_karachi,
-      "🏋️ Cult.fit & Gold's Gym": lg_cult,
+      "☕ Starbucks (19 Outlets)": lg_starbucks,
+      "☕ Third Wave Coffee (13 Outlets)": lg_third_wave,
+      "☕ Blue Tokai Roasters (10 Outlets)": lg_blue_tokai,
+      "☕ True Black Specialty (6 Outlets)": lg_true_black,
+      "☕ Roastery Coffee House & Artisanal (5)": lg_roastery,
+      "☕ Café Coffee Day - CCD (10 Outlets)": lg_ccd,
+      "🌯 California Burrito (18 Outlets)": lg_california_burrito,
+      "🥪 Subway High-AOV (9 Outlets)": lg_subway,
+      "🍔 McDonald's Drive-Thru & Prime (10)": lg_mcdonalds,
+      "🥐 Conçù Patisserie (7 Outlets)": lg_concu,
+      "🍰 Labonel Fine Baking (4 Outlets)": lg_labonel,
+      "🍰 Harley's Fine Baking (5 Outlets)": lg_harleys,
+      "🧁 Theobroma Pâtisserie (11 Outlets)": lg_theobroma,
+      "🍞 Karachi Bakery & Café (8 Outlets)": lg_karachi,
+      "🏋️ Cult.fit & Fitness Gyms (10)": lg_cult,
       "💼 Corporate Tech Giants (>₹12L)": lg_corp,
       "🏢 Gated Societies Cluster": markers_cluster
     };
